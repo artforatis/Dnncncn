@@ -1,0 +1,1018 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Haram Guide</title>
+<meta name="description" content="হাতিমে নামাজের সময় ও গেট, মক্কার ঐতিহাসিক স্থানের ম্যাপ, শব্দে শব্দে কুরআন, নবীজির ﷺ জীবনী ও সুন্নত।">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri&family=Amiri+Quran&family=Anek+Bangla:wght@400;500;600;700;800&family=Noto+Serif+Bengali:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{
+  --kiswa:#000000;
+  --gold:#C9A24A;
+  --gold-soft:#E9D9A8;
+  --green:#0B6B50;
+  --green-soft:#D4E8DF;
+  --marble:#EEF1EE;
+  --surface:#FFFFFF;
+  --line:#D5DCD8;
+  --ink:#17201D;
+  --muted:#5B6863;
+  --closed:#8A9590;
+  --warn:#9A5B12;
+  --nav-h:64px;
+  --ui:"Anek Bangla", system-ui, sans-serif;
+  --read:"Noto Serif Bengali", "Anek Bangla", serif;
+  --ar:"Amiri Quran", "Amiri", serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --marble:#0F1513; --surface:#18201D; --line:#2A3531; --ink:#E7ECE9; --muted:#A3B0AA;
+    --green-soft:#16382D; --gold-soft:#3A3120; --closed:#6E7A75; --warn:#E0A55A;
+  }
+}
+:root[data-theme="dark"]{
+  --marble:#0F1513; --surface:#18201D; --line:#2A3531; --ink:#E7ECE9; --muted:#A3B0AA;
+  --green-soft:#16382D; --gold-soft:#3A3120; --closed:#6E7A75; --warn:#E0A55A;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--marble);color:var(--ink);font-family:var(--ui);font-size:17px;line-height:1.55;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--green)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.ar{font-family:var(--ar);direction:rtl;line-height:2.1}
+
+/* ---------- kiswa band header ---------- */
+.band{background:var(--kiswa);color:#fff;position:sticky;top:0;z-index:1000;padding:calc(env(safe-area-inset-top) + 10px) 16px 0}
+.band-top{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:980px;margin:0 auto}
+.brand{font-weight:800;font-size:20px;letter-spacing:.01em}
+.clock{font-size:14px;color:#cfcfcf;text-align:right;line-height:1.3}
+.clock b{color:#fff;font-weight:600;font-size:16px}
+.theme-btn{background:none;border:1px solid #444;border-radius:999px;width:36px;height:36px;display:grid;place-items:center;color:#ddd}
+.embroidery{height:30px;margin:10px -16px 0;background:
+  linear-gradient(var(--gold),var(--gold)) top/100% 2px no-repeat,
+  linear-gradient(var(--gold),var(--gold)) bottom/100% 2px no-repeat,
+  repeating-linear-gradient(90deg,transparent 0 10px,rgba(201,162,74,.35) 10px 11px,transparent 11px 22px),
+  #000;position:relative;overflow:hidden}
+.embroidery::before{content:"";position:absolute;inset:6px 0;background:
+  radial-gradient(circle at 50% 50%,var(--gold) 0 3px,transparent 3.5px) 0 0/22px 18px repeat-x;opacity:.9}
+.status-row{display:flex;gap:8px;max-width:980px;margin:10px auto 0;padding-bottom:12px}
+.chip{flex:1;border:1px solid #333;border-radius:12px;padding:8px 10px;min-width:0}
+.chip .who{font-size:13px;color:#bdbdbd}
+.chip .state{font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip.open{border-color:var(--gold);background:#1a1508}
+.chip.open .state{color:var(--gold)}
+
+/* ---------- layout ---------- */
+main{max-width:980px;margin:0 auto;padding:0 16px calc(var(--nav-h) + 28px + env(safe-area-inset-bottom))}
+.view{display:none}
+.view.active{display:block}
+body.on-map main{max-width:none;padding:0}
+body.on-map{overflow:hidden}
+h1,h2,h3{line-height:1.3;margin:0}
+h2{font-size:24px;font-weight:800;margin:28px 0 10px}
+h3{font-size:19px;font-weight:700}
+p{margin:.5em 0}
+.lead{color:var(--muted);max-width:62ch}
+.sec{padding:6px 0 4px;border-bottom:1px solid var(--line)}
+.sec:last-child{border-bottom:0}
+
+/* steps */
+.steps{list-style:none;margin:10px 0;padding:0;counter-reset:s}
+.steps li{counter-increment:s;position:relative;padding:10px 0 10px 46px;border-top:1px dashed var(--line);max-width:64ch}
+.steps li:first-child{border-top:0}
+.steps li::before{content:counter(s,bengali);position:absolute;left:0;top:9px;width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:700;font-size:16px}
+.who-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.time-big{font-size:30px;font-weight:800;color:var(--green)}
+.gate-tag{display:inline-block;background:var(--kiswa);color:var(--gold);font-weight:800;border-radius:8px;padding:2px 10px;letter-spacing:.02em}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:12px;padding:12px 18px;font-weight:700;background:var(--green);color:#fff;text-decoration:none;min-height:48px}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.gold{background:var(--gold);color:#000}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.note{border-left:4px solid var(--gold);background:var(--gold-soft);padding:10px 14px;border-radius:0 10px 10px 0;margin:12px 0;max-width:68ch}
+.note.warn{border-left-color:var(--warn)}
+.src{font-size:14px;color:var(--muted)}
+.hadith{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0}
+.hadith .ar{font-size:26px;text-align:right}
+
+/* 24h day strip */
+.day{margin:14px 0 6px}
+.day-bar{position:relative;height:56px;border-radius:12px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.seg{position:absolute;top:0;bottom:0}
+.seg.peak{background:repeating-linear-gradient(135deg,rgba(154,91,18,.25) 0 6px,transparent 6px 12px)}
+.seg.calm{background:rgba(11,107,80,.12)}
+.seg.women{top:8px;bottom:30px;background:var(--gold);border-radius:4px}
+.seg.men{top:30px;bottom:8px;background:var(--green);border-radius:4px}
+.now-line{position:absolute;top:0;bottom:0;width:2px;background:var(--ink)}
+.now-line::after{content:"এখন";position:absolute;top:-1px;left:4px;font-size:11px;font-weight:700;background:var(--ink);color:var(--marble);padding:0 4px;border-radius:4px}
+.day-ticks{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:4px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:6px}
+
+/* ---------- map ---------- */
+.map-wrap{position:relative;height:calc(100dvh - var(--band-h,150px) - var(--nav-h) - env(safe-area-inset-bottom))}
+#map{position:absolute;inset:0;background:#cdd5d1}
+.map-filters{position:absolute;top:10px;left:10px;right:10px;z-index:500;display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.map-filters button{flex:0 0 auto;border:0;border-radius:999px;padding:8px 14px;background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.map-filters button[aria-pressed="true"]{background:var(--kiswa);color:var(--gold)}
+.map-tools{position:absolute;right:10px;bottom:16px;z-index:500;display:flex;flex-direction:column;gap:8px}
+.map-tools button{width:48px;height:48px;border-radius:14px;border:0;background:var(--surface);color:var(--ink);box-shadow:0 1px 5px rgba(0,0,0,.3);display:grid;place-items:center;font-weight:700;font-size:13px}
+.sheet{position:absolute;left:10px;right:70px;bottom:16px;z-index:600;background:var(--surface);border-radius:16px;box-shadow:0 4px 18px rgba(0,0,0,.35);padding:14px 16px;max-height:55%;overflow:auto;display:none}
+.sheet.show{display:block}
+.sheet h3{font-size:18px}
+.sheet .kind{font-size:13px;color:var(--muted)}
+.sheet .x{position:absolute;top:8px;right:8px;border:0;background:none;width:40px;height:40px;font-size:22px;color:var(--muted)}
+.approx{display:inline-block;font-size:12px;font-weight:700;color:var(--warn);border:1px solid currentColor;border-radius:6px;padding:0 6px;margin-left:6px}
+.nav-panel{position:absolute;left:10px;right:10px;top:58px;z-index:650;background:var(--kiswa);color:#fff;border-radius:16px;padding:12px 14px;display:none;align-items:center;gap:14px;box-shadow:0 4px 18px rgba(0,0,0,.4)}
+.nav-panel.show{display:flex}
+.nav-arrow{width:64px;height:64px;flex:0 0 64px;border-radius:50%;border:2px solid var(--gold);display:grid;place-items:center}
+.nav-arrow svg{transition:transform .25s}
+.nav-info{flex:1;min-width:0}
+.nav-dist{font-size:26px;font-weight:800;color:var(--gold);line-height:1.1}
+.nav-to{font-size:14px;color:#ccc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-hint{font-size:13px;color:#aaa}
+.nav-stop{border:1px solid #555;background:none;color:#fff;border-radius:10px;padding:8px 12px}
+.pin{width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5)}
+.pin span{transform:rotate(45deg);font-size:11px;font-weight:800;font-family:var(--ui)}
+.pin.gate{background:#000;color:var(--gold)}
+.pin.hateem{background:var(--gold);color:#000;width:38px;height:38px}
+.pin.holy{background:var(--green);color:#fff}
+.pin.history{background:#7A3E1D;color:#fff}
+.pin.outside{background:#2E5E8C;color:#fff}
+.pin.service{background:#fff;color:#000;border-color:#000}
+.me-dot{width:18px;height:18px;border-radius:50%;background:#1E88E5;border:3px solid #fff;box-shadow:0 0 0 6px rgba(30,136,229,.25)}
+.leaflet-container{font-family:var(--ui)}
+
+/* ---------- quran ---------- */
+.search{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;margin:14px 0 8px}
+.surah-list{list-style:none;margin:0;padding:0}
+.surah-list li button{width:100%;display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:12px 4px}
+.snum{width:38px;height:38px;display:grid;place-items:center;border:1.5px solid var(--gold);transform:rotate(45deg);font-weight:700;font-size:14px}
+.snum span{transform:rotate(-45deg)}
+.sname{font-weight:700}
+.smeta{font-size:14px;color:var(--muted)}
+.sar{font-family:var(--ar);font-size:24px;direction:rtl}
+.reader-top{position:sticky;top:var(--band-h,150px);z-index:50;background:var(--marble);padding:10px 0;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.toggle{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--surface);font-weight:600}
+.toggle input{width:18px;height:18px;accent-color:var(--green)}
+.size-ctl button{width:40px;height:40px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface)}
+.surah-head{text-align:center;padding:22px 0 8px}
+.surah-head .sar{font-size:40px}
+.bism{font-family:var(--ar);font-size:30px;text-align:center;direction:rtl;margin:6px 0 14px}
+.ayah{padding:16px 0;border-bottom:1px solid var(--line)}
+.ayah .ar{font-size:var(--ar-size,30px);text-align:right}
+.ayah .bn{font-family:var(--read);line-height:1.85;max-width:70ch}
+.ayah-no{display:inline-grid;place-items:center;min-width:30px;height:30px;padding:0 6px;border-radius:8px;background:var(--green-soft);color:var(--green);font-weight:700;font-size:14px}
+.wbw{display:flex;flex-wrap:wrap;flex-direction:row-reverse;gap:8px;margin:8px 0 10px}
+.w{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 10px;text-align:center;min-width:64px}
+.w .wa{font-family:var(--ar);font-size:calc(var(--ar-size,30px) * .8);direction:rtl;line-height:1.7}
+.w .wb{font-size:14px;color:var(--muted);line-height:1.35;border-top:1px dashed var(--line);padding-top:3px}
+.loading{padding:30px 0;color:var(--muted);text-align:center}
+
+/* ---------- seerah ---------- */
+.timeline{list-style:none;margin:16px 0;padding:0;position:relative}
+.timeline::before{content:"";position:absolute;left:68px;top:0;bottom:0;width:2px;background:var(--gold)}
+.ev{display:grid;grid-template-columns:56px 1fr;gap:26px;padding:0 0 4px}
+.ev-age{font-size:13px;color:var(--muted);text-align:right;padding-top:14px;line-height:1.25}
+.ev-age b{display:block;font-size:17px;color:var(--ink)}
+.ev details{position:relative;border-bottom:1px solid var(--line);padding:12px 0}
+.ev details::before{content:"";position:absolute;left:-22px;top:20px;width:12px;height:12px;border-radius:50%;background:var(--marble);border:3px solid var(--green)}
+.ev summary{list-style:none;cursor:pointer;font-weight:700;font-size:18px}
+.ev summary::-webkit-details-marker{display:none}
+.ev summary small{display:block;font-weight:500;font-size:14px;color:var(--muted)}
+.ev .body{font-family:var(--read);line-height:1.9;max-width:66ch;padding-top:6px}
+.ev .body .ar{font-size:24px;text-align:right}
+.link-btn{background:none;border:0;color:var(--green);font-weight:700;padding:6px 0;text-decoration:underline}
+
+/* ---------- sunnah & dua ---------- */
+.seg-ctl{display:flex;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:4px;margin:16px 0}
+.seg-ctl button{flex:1;border:0;background:none;border-radius:10px;padding:10px;font-weight:700}
+.seg-ctl button[aria-pressed="true"]{background:var(--green);color:#fff}
+.sunnah{padding:14px 0;border-bottom:1px solid var(--line);max-width:68ch}
+.sunnah h3{font-size:18px}
+.sunnah p{font-family:var(--read);line-height:1.85}
+.ref{font-size:14px;color:var(--muted)}
+.group-title{font-size:15px;font-weight:700;color:var(--green);margin:24px 0 0}
+.dua{padding:18px 0;border-bottom:1px solid var(--line)}
+.dua .full{font-size:30px;text-align:right}
+.dua .pron{color:var(--muted);font-style:normal}
+.dua .mean{font-family:var(--read);line-height:1.85}
+
+/* ---------- bottom nav ---------- */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:1100;background:var(--surface);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+.tabs button{flex:1;border:0;background:none;height:var(--nav-h);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:13px;font-weight:600;color:var(--muted)}
+.tabs button svg{width:24px;height:24px}
+.tabs button[aria-current="page"]{color:var(--green)}
+.tabs button[aria-current="page"] svg{stroke:var(--green)}
+
+@media (min-width:900px){
+  body{font-size:18px}
+  .tabs{top:var(--band-h,150px);bottom:0;right:auto;width:96px;flex-direction:column;border-top:0;border-right:1px solid var(--line);justify-content:flex-start;padding-top:12px}
+  .tabs button{flex:0 0 auto;height:78px}
+  main{padding-left:112px;padding-bottom:40px;max-width:1100px}
+  body.on-map main{padding-left:96px}
+  .map-wrap{height:calc(100dvh - var(--band-h,150px))}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:0 40px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="band" id="band">
+  <div class="band-top">
+    <div class="brand">হারাম গাইড</div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="clock">মক্কার সময়<br><b id="mkClock">--</b></div>
+      <button class="theme-btn" id="themeBtn" aria-label="রাত/দিন মোড বদলান">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="embroidery" aria-hidden="true"></div>
+  <div class="status-row" aria-live="polite">
+    <div class="chip" id="chipW"><div class="who">মহিলা, সকাল ৬–৯টা</div><div class="state">--</div></div>
+    <div class="chip" id="chipM"><div class="who">পুরুষ, রাত ১০–১টা</div><div class="state">--</div></div>
+  </div>
+</header>
+
+<main>
+<!-- ================= HATEEM ================= -->
+<section class="view active" id="v-home" aria-label="হাতিম">
+  <h2>হাতিমে নামাজ: কখন, কোন গেট</h2>
+  <p class="lead">হাতিম (হিজরে ইসমাইল) কাবারই অংশ। সৌদি কর্তৃপক্ষ নারী ও পুরুষের জন্য আলাদা সময় ঠিক করে দিয়েছে। ভেতরে প্রায় ১০ মিনিট থাকা যায়।</p>
+
+  <div class="two">
+  <div class="sec">
+    <div class="who-head"><h3>মহিলাদের জন্য</h3><span class="time-big">সকাল ৬টা – ৯টা</span></div>
+    <p>লাইন হয় <span class="gate-tag">গেট ৭৫, ৭৬, ৭৭</span> এ। জায়গাটি মসজিদের দক্ষিণ-পশ্চিম দিকে, কিং ফাহাদ গেট (৭৯)-এর ঠিক পাশে।</p>
+    <ol class="steps">
+      <li>ফজরের আগে ওযু করে নিন, যেন লাইন থেকে বের হতে না হয়। কাছেই নিচতলায় মহিলাদের ওযুখানা আছে (ম্যাপে দেখানো)।</li>
+      <li>ফজরের পরপরই গেট ৭৫, ৭৬ বা ৭৭-এ গিয়ে লাইনে দাঁড়ান। আগে গেলে আগে সুযোগ।</li>
+      <li>নিরাপত্তাকর্মীরা দলে দলে হাতিমে নিয়ে যাবেন। তাঁদের নির্দেশ মানুন।</li>
+      <li>ভেতরে দুই রাকাত নফল নামাজ পড়ুন, তারপর দোয়া করুন। দোয়াগুলো আগে থেকে ঠিক করে রাখুন।</li>
+      <li>সময় শেষ হলে শান্তভাবে বের হয়ে অন্যদের জায়গা দিন।</li>
+    </ol>
+    <div class="btn-row">
+      <button class="btn gold" data-go="g75">গেট ৭৫–৭৭ এ নিয়ে চলো</button>
+      <button class="btn ghost" data-show="wudu-w">মহিলাদের ওযুখানা</button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="who-head"><h3>পুরুষদের জন্য</h3><span class="time-big">রাত ১০টা – ১টা</span></div>
+    <p>প্রবেশ হয় হাতিমের পশ্চিম দিকের নির্দিষ্ট মুখ দিয়ে, মাতাফ (কাবার চারপাশের চত্বর) থেকে।</p>
+    <ol class="steps">
+      <li>রাত ৯:৩০-এর মধ্যে মাতাফে পৌঁছে যান। ওযু আগেই করে নিন।</li>
+      <li>হাতিমের পশ্চিম মুখের কাছে কর্মীদের তৈরি লাইনে দাঁড়ান।</li>
+      <li>ভিড়ের সময় মাতাফে অনেক সময় শুধু ইহরাম পরা লোকদের ঢুকতে দেওয়া হয়। তখন কর্মীদের জিজ্ঞাসা করুন কোন পথে যাবেন।</li>
+      <li>ভেতরে দুই রাকাত নফল ও দোয়া। প্রায় ১০ মিনিট।</li>
+    </ol>
+    <div class="btn-row">
+      <button class="btn" data-go="hateem">হাতিমে নিয়ে চলো</button>
+    </div>
+  </div>
+  </div>
+
+  <h2>কোন সময়ে গেলে ভালো</h2>
+  <div class="day">
+    <div class="day-bar" id="dayBar">
+      <div class="seg peak" style="left:70.83%;width:16.67%"></div>
+      <div class="seg calm" style="left:0;width:16.67%"></div>
+      <div class="seg calm" style="left:37.5%;width:29.17%"></div>
+      <div class="seg calm" style="left:91.67%;width:8.33%"></div>
+      <div class="seg women" style="left:25%;width:12.5%"></div>
+      <div class="seg men" style="left:91.67%;width:8.33%"></div>
+      <div class="seg men" style="left:0;width:4.17%"></div>
+      <div class="now-line" id="nowLine"></div>
+    </div>
+    <div class="day-ticks"><span>রাত ১২</span><span>সকাল ৬</span><span>দুপুর ১২</span><span>সন্ধ্যা ৬</span><span>রাত ১২</span></div>
+    <div class="legend">
+      <span><i style="background:var(--gold)"></i>হাতিম: মহিলা</span>
+      <span><i style="background:var(--green)"></i>হাতিম: পুরুষ</span>
+      <span><i style="background:rgba(11,107,80,.2)"></i>হারামে ভিড় কম</span>
+      <span><i style="background:repeating-linear-gradient(135deg,rgba(154,91,18,.5) 0 3px,transparent 3px 6px)"></i>সবচেয়ে বেশি ভিড়</span>
+    </div>
+  </div>
+  <ol class="steps">
+    <li><b>মহিলারা:</b> হাতিম খোলে সকাল ৬টায়, কিন্তু লাইন তার অনেক আগে থেকে লম্বা হয়। ফজরের নামাজ গেটের কাছাকাছি পড়ে সঙ্গে সঙ্গে লাইনে দাঁড়ানো সবচেয়ে ভালো।</li>
+    <li><b>পুরুষরা:</b> রাত ১০টার আগেই পৌঁছান। রাত ১০টার পর হারামে ভিড়ও তুলনামূলক কম থাকে।</li>
+    <li><b>সাধারণ ভিড়:</b> সৌদি হজ ও উমরাহ মন্ত্রণালয়ের তথ্যমতে বিকেল ৫টা থেকে রাত ৯টা সবচেয়ে ভিড়। কম ভিড় রাত ১০টা থেকে ভোর ৪টা এবং সকাল ৯টা থেকে বিকেল ৪টা।</li>
+  </ol>
+  <div class="note warn">কিছু গাইড বলছে শুক্রবার হাতিম বন্ধ থাকে — এটা সরকারি ঘোষণায় নেই। রমজান ও হজের মৌসুমে সময় বদলাতে পারে। গেটে কর্মীদের কাছে নিশ্চিত হয়ে নিন।</div>
+
+  <h2>হাতিম কেন বিশেষ</h2>
+  <p class="lead">কুরাইশরা কাবা পুনর্নির্মাণের সময় খরচের অভাবে এই অংশ দেয়ালের ভেতরে নিতে পারেনি। তাই এটা বাইরে দেখা গেলেও আসলে বাইতুল্লাহর অংশ। কাবার ছাদের সোনালি নালা (মিজাবে রহমত) এর ওপরেই।</p>
+  <div class="hadith">
+    <div class="ar">صَلِّي فِي الْحِجْرِ إِنْ أَرَدْتِ دُخُولَ الْبَيْتِ، فَإِنَّمَا هُوَ قِطْعَةٌ مِنَ الْبَيْتِ</div>
+    <p>“তুমি যদি বাইতুল্লাহর ভেতরে (নামাজ পড়তে) চাও, তাহলে হিজরে নামাজ পড়ো; কারণ এটা বাইতুল্লাহরই একটি অংশ।” — নবীজি ﷺ আয়েশা (রা.)-কে বলেছিলেন।</p>
+    <p class="src">তিরমিজি, আবু দাউদ, নাসাঈ</p>
+  </div>
+  <div class="note">এখানে দোয়া কবুলের আশা করা যায়, তবে “এখানে সব দোয়া অবশ্যই কবুল হবে” — এমন নির্দিষ্ট সহিহ হাদিস জানা নেই। কবুল আল্লাহর ইচ্ছায়।</div>
+  <ul class="steps" style="list-style:none">
+    <li>হাতিমের ভেতর দিয়ে তাওয়াফ করলে সেই চক্কর গণ্য হয় না। তাওয়াফ হাতিমের বাইরে দিয়ে করতে হয়।</li>
+    <li>মহিলারা মাহরামের সঙ্গে বের হওয়ার পর কোথায় দেখা করবেন, একটা গেট নম্বর আগে ঠিক করে নিন।</li>
+  </ul>
+  <p class="src">তথ্যসূত্র: মসজিদুল হারাম ও মসজিদে নববী বিষয়ক সাধারণ কর্তৃপক্ষের ঘোষণা (২২ জুন ২০২৬ থেকে কার্যকর, SPA/সাবক/মক্কা আঞ্চলিক সরকার)। গেট ৭৫–৭৭: হাজি-গাইড ও যাত্রীদের সাম্প্রতিক তথ্য। ভিড়ের সময়: খালিজ টাইমস (আগস্ট ২০২৬)। গেটের অবস্থান: OpenStreetMap / UmrahMap।</p>
+</section>
+
+<!-- ================= MAP ================= -->
+<section class="view view-map" id="v-map" aria-label="ম্যাপ">
+  <div class="map-wrap">
+    <div id="map" role="application" aria-label="মক্কার ম্যাপ"></div>
+    <div class="map-filters" id="filters">
+      <button data-f="all" aria-pressed="true">সব</button>
+      <button data-f="gate" aria-pressed="false">গেট</button>
+      <button data-f="holy" aria-pressed="false">হারামের ভেতরে</button>
+      <button data-f="history" aria-pressed="false">ঐতিহাসিক</button>
+      <button data-f="outside" aria-pressed="false">মক্কার বাইরে</button>
+      <button data-f="service" aria-pressed="false">ওযু</button>
+    </div>
+    <div class="nav-panel" id="navPanel">
+      <div class="nav-arrow"><svg id="navArrow" width="34" height="34" viewBox="0 0 24 24"><path d="M12 2l6 18-6-4-6 4z" fill="#C9A24A"/></svg></div>
+      <div class="nav-info">
+        <div class="nav-dist" id="navDist">--</div>
+        <div class="nav-to" id="navTo">--</div>
+        <div class="nav-hint" id="navHint">অবস্থান খোঁজা হচ্ছে…</div>
+      </div>
+      <button class="nav-stop" id="navStop">থামুন</button>
+    </div>
+    <div class="sheet" id="sheet" role="dialog" aria-live="polite">
+      <button class="x" id="sheetX" aria-label="বন্ধ করুন">×</button>
+      <div class="kind" id="sKind"></div>
+      <h3 id="sTitle"></h3>
+      <p id="sText"></p>
+      <div class="btn-row"><button class="btn gold" id="sGo">এখানে নিয়ে চলো</button></div>
+    </div>
+    <div class="map-tools">
+      <button id="btnMe" aria-label="আমার অবস্থান">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+      </button>
+      <button id="btnHaram" aria-label="হারামে ফিরুন">হারাম</button>
+      <button id="btnLayer" aria-label="ম্যাপের ধরন বদলান">স্যাটে</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= QURAN ================= -->
+<section class="view" id="v-quran" aria-label="কুরআন">
+  <div id="qList">
+    <h2>আল-কুরআন</h2>
+    <p class="lead">আরবি, বাংলা অর্থ এবং শব্দে শব্দে অর্থ। একবার খোলা সূরা ইন্টারনেট ছাড়াও পড়া যাবে।</p>
+    <div id="lastRead"></div>
+    <input class="search" id="qSearch" type="search" placeholder="সূরার নাম বা নম্বর লিখুন" aria-label="সূরা খুঁজুন">
+    <div class="btn-row"><button class="btn ghost" id="dlAll">সব সূরা অফলাইনের জন্য রাখুন</button><span class="src" id="dlStatus" style="align-self:center"></span></div>
+    <ul class="surah-list" id="surahList"></ul>
+  </div>
+  <div id="qReader" hidden>
+    <div class="reader-top">
+      <button class="btn ghost" id="qBack" style="min-height:40px;padding:8px 14px">← সূরার তালিকা</button>
+      <label class="toggle"><input type="checkbox" id="wbwToggle"> শব্দে শব্দে অর্থ</label>
+      <span class="size-ctl"><button id="arMinus" aria-label="আরবি ছোট">অ−</button> <button id="arPlus" aria-label="আরবি বড়">অ+</button></span>
+    </div>
+    <div id="qBody"></div>
+  </div>
+</section>
+
+<!-- ================= SEERAH ================= -->
+<section class="view" id="v-seerah" aria-label="নবীজির জীবনী">
+  <h2>নবীজি ﷺ এর জীবন</h2>
+  <p class="lead">জন্ম থেকে বিদায় পর্যন্ত গুরুত্বপূর্ণ মুহূর্তগুলো। যে ঘটনার জায়গা মক্কায় আছে, সেটা ম্যাপে দেখা যাবে।</p>
+  <div class="hadith">
+    <div class="ar">لَّقَدْ كَانَ لَكُمْ فِي رَسُولِ اللَّهِ أُسْوَةٌ حَسَنَةٌ</div>
+    <p>“তোমাদের জন্য আল্লাহর রাসুলের মধ্যে রয়েছে উত্তম আদর্শ।”</p>
+    <p class="src">সূরা আহযাব ৩৩:২১</p>
+  </div>
+  <ol class="timeline" id="timeline"></ol>
+</section>
+
+<!-- ================= SUNNAH & DUA ================= -->
+<section class="view" id="v-sunnah" aria-label="সুন্নত ও দোয়া">
+  <div class="seg-ctl" role="group">
+    <button id="tabDua" aria-pressed="true">হাতিমের দোয়া</button>
+    <button id="tabSunnah" aria-pressed="false">দৈনন্দিন সুন্নত</button>
+  </div>
+  <div id="duaPane">
+    <p class="lead">কুরআনের দোয়া — আরবি, উচ্চারণ, শব্দে শব্দে অর্থ। হাতিমে দুই রাকাত নামাজের পর পড়তে পারেন।</p>
+    <div id="duaList"></div>
+  </div>
+  <div id="sunnahPane" hidden>
+    <div id="sunnahList"></div>
+  </div>
+</section>
+</main>
+
+<nav class="tabs" aria-label="প্রধান মেনু">
+  <button data-v="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="15"/><path d="M4 10h16"/><path d="M14 21v-5a2 2 0 0 1 4 0v5"/></svg>হাতিম</button>
+  <button data-v="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>ম্যাপ</button>
+  <button data-v="quran"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6c-2-1.5-5-2-8-1.5v14c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-14c-3-.5-6 0-8 1.5z"/><path d="M12 6v14"/></svg>কুরআন</button>
+  <button data-v="seerah"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V8l8-5 8 5v12"/><path d="M9 20v-6h6v6"/></svg>সীরাত</button>
+  <button data-v="sunnah"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3v8a5 5 0 0 0 10 0V3"/><path d="M12 16v5"/></svg>দোয়া</button>
+</nav>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+"use strict";
+/* ============ helpers ============ */
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const BN = "০১২৩৪৫৬৭৮৯";
+const bn = v => String(v).replace(/\d/g, d => BN[d]);
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ============ theme ============ */
+(function(){
+  const t = store.get("theme", null);
+  if (t) document.documentElement.dataset.theme = t;
+  $("#themeBtn").addEventListener("click", () => {
+    const cur = document.documentElement.dataset.theme ||
+      (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    const next = cur === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    store.set("theme", next);
+  });
+})();
+
+/* ============ Makkah clock & Hateem status ============ */
+function makkahNow(){
+  const d = new Date();
+  return new Date(d.getTime() + (d.getTimezoneOffset() + 180) * 60000);
+}
+function fmtClock(d){
+  let h = d.getHours(), m = d.getMinutes();
+  const part = h < 4 ? "রাত" : h < 12 ? "সকাল" : h < 15 ? "দুপুর" : h < 18 ? "বিকেল" : h < 20 ? "সন্ধ্যা" : "রাত";
+  const h12 = ((h + 11) % 12) + 1;
+  return `${part} ${bn(h12)}:${bn(String(m).padStart(2,"0"))}`;
+}
+function fmtDur(mins){
+  const h = Math.floor(mins / 60), m = mins % 60;
+  if (h && m) return `${bn(h)} ঘণ্টা ${bn(m)} মিনিট`;
+  if (h) return `${bn(h)} ঘণ্টা`;
+  return `${bn(m)} মিনিট`;
+}
+// windows in minutes since midnight, Makkah time
+const WIN = { w: [[360, 540]], m: [[1320, 1440], [0, 60]] };
+function statusFor(key, mins){
+  const ws = WIN[key];
+  for (const [a, b] of ws) if (mins >= a && mins < b) {
+    // find real end (men wrap past midnight)
+    let end = b;
+    if (key === "m" && a === 1320) end = 1440 + 60;
+    return { open: true, left: end - mins };
+  }
+  let best = Infinity;
+  for (const [a] of ws) { const d = (a - mins + 1440) % 1440; if (d < best) best = d; }
+  return { open: false, until: best };
+}
+function tick(){
+  const d = makkahNow();
+  const mins = d.getHours() * 60 + d.getMinutes();
+  $("#mkClock").textContent = fmtClock(d);
+  for (const [key, id] of [["w", "#chipW"], ["m", "#chipM"]]) {
+    const s = statusFor(key, mins), el = $(id);
+    el.classList.toggle("open", s.open);
+    $(".state", el).textContent = s.open ? `এখন খোলা, আর ${fmtDur(s.left)}` : `খুলবে ${fmtDur(s.until)} পর`;
+  }
+  const nl = $("#nowLine");
+  if (nl) nl.style.left = (mins / 1440 * 100) + "%";
+}
+tick(); setInterval(tick, 20000);
+
+function setBandH(){ document.documentElement.style.setProperty("--band-h", $("#band").offsetHeight + "px"); }
+addEventListener("resize", setBandH); setBandH();
+
+/* ============ places ============ */
+// kind: gate | holy | history | outside | service | hateem
+const PLACES = [
+  { id:"hateem", kind:"hateem", label:"হা", name:"হাতিম (হিজরে ইসমাইল)", lat:21.42259, lng:39.82610,
+    text:"কাবার উত্তর-পশ্চিম পাশের অর্ধবৃত্তাকার জায়গা, কাবারই অংশ। মহিলা: সকাল ৬–৯টা (গেট ৭৫–৭৭ এ লাইন)। পুরুষ: রাত ১০–১টা (মাতাফ থেকে পশ্চিম মুখ দিয়ে)।" },
+  { id:"kaaba", kind:"holy", label:"কা", name:"কাবা শরীফ", lat:21.42251, lng:39.82618,
+    text:"বাইতুল্লাহ — সারা বিশ্বের মুসলমানদের কিবলা। ইবরাহিম ও ইসমাইল (আ.) এর ভিত্তি গড়েছিলেন।" },
+  { id:"aswad", kind:"holy", label:"আ", name:"হাজরে আসওয়াদ", lat:21.42247, lng:39.82626,
+    text:"কাবার পূর্ব কোণে কালো পাথর। এখান থেকেই তাওয়াফ শুরু ও শেষ হয়।" },
+  { id:"maqam", kind:"holy", label:"মা", name:"মাকামে ইবরাহিম", lat:21.42262, lng:39.82629,
+    text:"কাবার দরজার সামনে ইবরাহিম (আ.)-এর পায়ের ছাপসহ পাথর। তাওয়াফের পর এর পেছনে দুই রাকাত নামাজ পড়া সুন্নত (সূরা বাকারা ২:১২৫)।" },
+  { id:"safa", kind:"holy", label:"সা", name:"সাফা পাহাড়", lat:21.42190, lng:39.82730, approx:true,
+    text:"সাঈ এখান থেকে শুরু। এখানেই নবীজি ﷺ প্রথম প্রকাশ্যে কুরাইশদের দাওয়াত দিয়েছিলেন।" },
+  { id:"marwa", kind:"holy", label:"মা", name:"মারওয়া পাহাড়", lat:21.42505, lng:39.82735, approx:true,
+    text:"সাঈ এখানে শেষ হয়। হাজেরা (আ.) পানির খোঁজে সাফা ও মারওয়ার মাঝে সাতবার দৌড়েছিলেন।" },
+
+  { id:"g75", kind:"gate", label:"৭৫", name:"গেট ৭৫, ৭৬, ৭৭ — মহিলাদের হাতিম লাইন", lat:21.42161, lng:39.82396,
+    text:"মসজিদের দক্ষিণ-পশ্চিম দিক, কিং ফাহাদ গেট (৭৯)-এর পাশে। মহিলাদের হাতিমে যাওয়ার লাইন এখানে হয় (সকাল ৬–৯টা)।" },
+  { id:"g79", kind:"gate", label:"৭৯", name:"গেট ৭৯ — কিং ফাহাদ গেট", lat:21.42123, lng:39.82405,
+    text:"দক্ষিণ-পশ্চিম দিকের বড় গেট। এখান থেকে মাতাফে সরাসরি যাওয়া যায়। হুইলচেয়ার-উপযোগী।" },
+  { id:"g1", kind:"gate", label:"১", name:"গেট ১ — কিং আব্দুল আজিজ গেট", lat:21.42104, lng:39.82584,
+    text:"দক্ষিণ দিকে, ক্লক টাওয়ারের সামনে। মাতাফে যাওয়ার প্রধান পথ। হুইলচেয়ার-উপযোগী।" },
+  { id:"g40", kind:"gate", label:"৪০", name:"গেট ৪০ — বাবুল উমরাহ", lat:21.42284, lng:39.82457,
+    text:"পশ্চিম দিকের গেট, উমরাহকারীদের জন্য প্রচলিত প্রবেশপথ।" },
+  { id:"g30", kind:"gate", label:"৩০", name:"গেট ৩০ — বাবুল ফাতহ", lat:21.42402, lng:39.82651,
+    text:"উত্তর দিকের গেট, মাসআর (সাঈর পথ) কাছে।" },
+  { id:"g25", kind:"gate", label:"২৫", name:"গেট ২৫ — বাবুল মারওয়া", lat:21.42532, lng:39.82739,
+    text:"মারওয়ার কাছের গেট। সাঈ শেষে এখান দিয়ে বের হওয়া যায়।" },
+  { id:"g17", kind:"gate", label:"১৭", name:"গেট ১৭ — বাবে আলী", lat:21.42295, lng:39.82758,
+    text:"পূর্ব দিকের গেট। এখান দিয়ে বের হয়ে নবীজির ﷺ জন্মস্থানের (মক্কা লাইব্রেরি) দিকে হাঁটা যায়।" },
+
+  { id:"wudu-w", kind:"service", label:"ও", name:"মহিলাদের ওযুখানা (নিচতলা)", lat:21.42082, lng:39.82404,
+    text:"গেট ৭৯-এর দক্ষিণে, মাটির নিচে। হাতিমের লাইনে দাঁড়ানোর আগে ওযু করতে কাছের জায়গা।" },
+  { id:"wudu-w2", kind:"service", label:"ও", name:"মহিলাদের ওযুখানা", lat:21.42050, lng:39.82502,
+    text:"দক্ষিণ-পশ্চিম দিক, মাটির নিচে।" },
+  { id:"wudu-m", kind:"service", label:"ও", name:"পুরুষদের ওযুখানা", lat:21.42104, lng:39.82369,
+    text:"দক্ষিণ-পশ্চিম দিক, মাটির নিচে।" },
+  { id:"wudu-mataf", kind:"service", label:"ও", name:"মাতাফের কাছে ওযুখানা (নারী ও পুরুষ)", lat:21.42328, lng:39.82645,
+    text:"মসজিদের ভেতরে নিচতলায়, বাবুল ফাতহের দিকে।" },
+
+  { id:"mawlid", kind:"history", label:"জ", name:"নবীজির ﷺ জন্মস্থান — মক্কা লাইব্রেরি", lat:21.42490, lng:39.82980,
+    text:"বনু হাশিম গোত্রের এলাকা (সুক আল-লাইল)। যেখানে নবীজি ﷺ জন্মেছিলেন বলে প্রসিদ্ধ, সেখানে এখন ‘মাকতাবা মক্কা আল-মুকাররমা’ লাইব্রেরি। মসজিদের পূর্ব দিকে, মারওয়ার দিক থেকে কাছে।" },
+  { id:"abujahl", kind:"history", label:"আ", name:"আবু জাহলের বাড়ির জায়গা", lat:21.42490, lng:39.82850, approx:true,
+    text:"মাসআর (সাঈর পথ) বাইরে, পূর্ব দিকে। স্থানীয় গাইডদের বর্ণনা অনুযায়ী এটাই আনুমানিক জায়গা, এখন এখানে গণশৌচাগার। নির্দিষ্ট বিন্দু নিশ্চিত নয়। উমর (রা.) ইসলাম গ্রহণের পর প্রথমে এখানে এসেই ঘোষণা দিয়েছিলেন।" },
+  { id:"khadija", kind:"history", label:"খা", name:"খাদিজা (রা.)-র বাড়ির জায়গা", lat:21.42515, lng:39.82765, approx:true,
+    text:"মারওয়ার বাইরে বের হওয়ার পথের কাছে। এখানে নবীজি ﷺ প্রায় ২৮ বছর ছিলেন, ফাতিমা (রা.)-র জন্ম এখানে। এখন জায়গাটা মহিলাদের নামাজের এলাকার অংশ। প্রচলিত ধারণার উল্টো — এটা টয়লেটের জায়গা নয়।" },
+  { id:"arqam", kind:"history", label:"দা", name:"দারুল আরকাম", lat:21.42230, lng:39.82775, approx:true,
+    text:"সাফার কাছে আরকাম (রা.)-র বাড়ি, গোপন দাওয়াতের সময় প্রথম ‘ইসলামি কেন্দ্র’। হামজা ও উমর (রা.) এখানেই ইসলাম গ্রহণ করেন। এখন মসজিদের সম্প্রসারিত অংশে (গেট ১৬ — আরকাম এস্কেলেটরের কাছে)।" },
+  { id:"qubais", kind:"history", label:"কু", name:"আবু কুবাইস পাহাড়", lat:21.42130, lng:39.82920, approx:true,
+    text:"সাফার পাশের পাহাড়, এখানে রাজপ্রাসাদ। প্রসিদ্ধ বর্ণনামতে চাঁদ দ্বিখণ্ডিত হওয়ার মুজিজা এর ওপর দেখা গিয়েছিল।" },
+  { id:"muala", kind:"history", label:"মু", name:"জান্নাতুল মুআল্লা কবরস্থান", lat:21.43694, lng:39.82917,
+    text:"খাদিজা (রা.), আবু তালিব, আব্দুল মুত্তালিবসহ নবীজির ﷺ পরিবারের অনেকে এখানে শায়িত। হারাম থেকে উত্তরে প্রায় দেড় কিলোমিটার।" },
+  { id:"jinn", kind:"history", label:"জি", name:"মসজিদে জিন", lat:21.43339, lng:39.82894,
+    text:"যেখানে জিনদের একটি দল নবীজির ﷺ কুরআন তিলাওয়াত শুনে ঈমান এনেছিল (সূরা জিন)। জান্নাতুল মুআল্লার কাছে।" },
+
+  { id:"hira", kind:"outside", label:"হে", name:"হেরা গুহা (জাবালে নূর)", lat:21.45770, lng:39.85930,
+    text:"এখানে প্রথম ওহী নাজিল হয় — ‘ইকরা’ (সূরা আলাক)। ওঠার পথ শেষের দিকে খাড়া; ভোরে বা সন্ধ্যায় যান, পানি সঙ্গে রাখুন।" },
+  { id:"hira-path", kind:"outside", label:"প", name:"হেরা গুহায় ওঠার পথ (শুরু)", lat:21.45750, lng:39.86872,
+    text:"হেরা কালচারাল ডিস্ট্রিক্ট থেকে ওঠার পথ শুরু। কাছেই ওহী প্রদর্শনী ও কুরআন জাদুঘর।" },
+  { id:"thawr", kind:"outside", label:"সা", name:"সাওর গুহা (জাবালে সাওর)", lat:21.37700, lng:39.84986,
+    text:"হিজরতের সময় নবীজি ﷺ ও আবু বকর (রা.) তিন রাত এখানে লুকিয়ে ছিলেন (সূরা তাওবা ৯:৪০)।" },
+  { id:"aisha", kind:"outside", label:"আ", name:"মসজিদে আয়েশা (তানঈম)", lat:21.46770, lng:39.80137,
+    text:"হারামের সবচেয়ে কাছের মীকাত। মক্কায় থেকে নতুন উমরাহর ইহরাম এখান থেকে বাঁধা হয়।" },
+  { id:"mina", kind:"outside", label:"মি", name:"মিনা", lat:21.41350, lng:39.89300,
+    text:"হজের সময় তাঁবুর শহর, জামারাতে পাথর মারা হয়।" },
+  { id:"bayah", kind:"outside", label:"বা", name:"মসজিদে বাইআত (আকাবা)", lat:21.42320, lng:39.87380, approx:true,
+    text:"মিনায় জামারাতুল আকাবার কাছে। এখানে মদিনার আনসাররা নবীজির ﷺ হাতে আকাবার বাইআত দিয়েছিলেন, যা হিজরতের পথ খুলে দেয়।" },
+  { id:"muzdalifah", kind:"outside", label:"মু", name:"মুজদালিফা", lat:21.38360, lng:39.93680,
+    text:"আরাফার পর হাজিরা খোলা আকাশের নিচে রাত কাটান।" },
+  { id:"arafat", kind:"outside", label:"আ", name:"আরাফাত ময়দান", lat:21.35640, lng:39.96940,
+    text:"৯ জিলহজ এখানে অবস্থান হজের মূল রুকন। বিদায় হজের ভাষণ এখানে দেওয়া হয়।" },
+  { id:"rahmah", kind:"outside", label:"র", name:"জাবালে রহমত", lat:21.35480, lng:39.98410,
+    text:"আরাফাতের ছোট পাহাড়। নবীজি ﷺ বিদায় হজে এর পাদদেশে অবস্থান করেছিলেন। পাথরে নাম লেখা বা কাপড় বাঁধা বিদআত।" },
+];
+const KIND_BN = { gate:"গেট", holy:"হারামের ভেতরে", history:"ঐতিহাসিক স্থান", outside:"মক্কার বাইরে", service:"ওযুখানা", hateem:"হাতিম" };
+const byId = id => PLACES.find(p => p.id === id);
+
+/* ============ map ============ */
+let map, layers = {}, markers = {}, currentLayer = "sat", filter = "all";
+let selected = null, nav = null, me = { marker:null, circle:null, lat:null, lng:null, acc:null, heading:null };
+
+function initMap(){
+  if (map || !window.L) { if (!window.L) $("#map").innerHTML = '<p class="loading">ম্যাপ লোড হয়নি — ইন্টারনেট সংযোগ দেখুন।</p>'; return; }
+  map = L.map("map", { zoomControl:false, attributionControl:true }).setView([21.4228, 39.8262], 17);
+  layers.sat = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    { maxZoom:20, maxNativeZoom:19, attribution:"ছবি © Esri" });
+  layers.street = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    { maxZoom:20, maxNativeZoom:19, attribution:"© OpenStreetMap" });
+  layers.sat.addTo(map);
+  L.control.zoom({ position:"bottomleft" }).addTo(map);
+  for (const p of PLACES) {
+    const icon = L.divIcon({ className:"", iconSize:[30,30], iconAnchor:[15,30],
+      html:`<div class="pin ${p.kind}"><span>${p.label}</span></div>` });
+    const m = L.marker([p.lat, p.lng], { icon, title:p.name, keyboard:true });
+    m.on("click", () => openSheet(p.id));
+    markers[p.id] = m;
+  }
+  applyFilter();
+}
+function applyFilter(){
+  if (!map) return;
+  for (const p of PLACES) {
+    const show = filter === "all" || p.kind === filter || (filter === "holy" && p.kind === "hateem") || (filter === "gate" && p.kind === "hateem");
+    if (show) markers[p.id].addTo(map); else markers[p.id].remove();
+  }
+  if (filter === "outside") map.setView([21.41, 39.88], 12);
+  else if (filter === "history") map.setView([21.428, 39.8285], 15);
+  else if (filter !== "all") map.setView([21.4228, 39.8262], 17);
+}
+$("#filters").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  filter = b.dataset.f;
+  $$("#filters button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  applyFilter();
+});
+$("#btnLayer").addEventListener("click", () => {
+  if (!map) return;
+  map.removeLayer(layers[currentLayer]);
+  currentLayer = currentLayer === "sat" ? "street" : "sat";
+  layers[currentLayer].addTo(map);
+  $("#btnLayer").textContent = currentLayer === "sat" ? "স্যাটে" : "রাস্তা";
+});
+$("#btnHaram").addEventListener("click", () => map && map.setView([21.4228, 39.8262], 17));
+$("#btnMe").addEventListener("click", () => {
+  startWatch();
+  if (me.lat !== null && map) map.setView([me.lat, me.lng], 18);
+});
+
+function openSheet(id){
+  const p = byId(id); if (!p) return;
+  selected = p;
+  $("#sKind").textContent = KIND_BN[p.kind];
+  $("#sTitle").innerHTML = esc(p.name) + (p.approx ? '<span class="approx">আনুমানিক</span>' : "");
+  $("#sText").textContent = p.text;
+  $("#sheet").classList.add("show");
+  if (map) map.panTo([p.lat, p.lng]);
+}
+$("#sheetX").addEventListener("click", () => $("#sheet").classList.remove("show"));
+$("#sGo").addEventListener("click", () => selected && startNav(selected.id));
+
+/* --- geolocation & navigation --- */
+let watchId = null;
+function startWatch(){
+  if (watchId !== null) return;
+  if (!("geolocation" in navigator)) { $("#navHint").textContent = "এই ডিভাইসে লোকেশন পাওয়া যাচ্ছে না।"; return; }
+  watchId = navigator.geolocation.watchPosition(onPos, err => {
+    const msg = err.code === 1 ? "লোকেশনের অনুমতি দিন (সেটিংস থেকে)।" : "লোকেশন পাওয়া যাচ্ছে না — খোলা জায়গায় যান।";
+    $("#navHint").textContent = msg;
+    if (!nav) alert(msg);
+  }, { enableHighAccuracy:true, maximumAge:3000, timeout:20000 });
+  const onOri = e => {
+    let h = null;
+    if (typeof e.webkitCompassHeading === "number") h = e.webkitCompassHeading;
+    else if (e.absolute && typeof e.alpha === "number") h = (360 - e.alpha) % 360;
+    if (h !== null) { me.heading = h + (screen.orientation ? screen.orientation.angle : 0); updateNav(); }
+  };
+  if ("ondeviceorientationabsolute" in window) addEventListener("deviceorientationabsolute", onOri);
+  else addEventListener("deviceorientation", onOri);
+}
+function onPos(pos){
+  me.lat = pos.coords.latitude; me.lng = pos.coords.longitude; me.acc = pos.coords.accuracy;
+  if (map) {
+    if (!me.marker) {
+      me.marker = L.marker([me.lat, me.lng], { icon:L.divIcon({ className:"", html:'<div class="me-dot"></div>', iconSize:[18,18], iconAnchor:[9,9] }), zIndexOffset:1000 }).addTo(map);
+      me.circle = L.circle([me.lat, me.lng], { radius:me.acc, color:"#1E88E5", weight:1, fillOpacity:.08 }).addTo(map);
+    } else {
+      me.marker.setLatLng([me.lat, me.lng]); me.circle.setLatLng([me.lat, me.lng]).setRadius(me.acc);
+    }
+  }
+  updateNav();
+}
+const toRad = d => d * Math.PI / 180;
+function dist(a, b, c, d){
+  const R = 6371000, x = toRad(c - a), y = toRad(d - b);
+  const h = Math.sin(x/2)**2 + Math.cos(toRad(a)) * Math.cos(toRad(c)) * Math.sin(y/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function bearing(a, b, c, d){
+  const y = Math.sin(toRad(d - b)) * Math.cos(toRad(c));
+  const x = Math.cos(toRad(a)) * Math.sin(toRad(c)) - Math.sin(toRad(a)) * Math.cos(toRad(c)) * Math.cos(toRad(d - b));
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+}
+function fmtDist(m){ return m >= 1000 ? `${bn((m/1000).toFixed(1))} কিমি` : `${bn(Math.round(m))} মিটার`; }
+
+function startNav(id){
+  const p = byId(id); if (!p) return;
+  show("map");
+  setTimeout(() => {
+    initMap();
+    if (nav && nav.line) nav.line.remove();
+    nav = { p, line:null, lastRouteAt:0, lastRouteFrom:null };
+    $("#sheet").classList.remove("show");
+    $("#navPanel").classList.add("show");
+    $("#navTo").textContent = p.name;
+    $("#navDist").textContent = "--";
+    $("#navHint").textContent = "অবস্থান খোঁজা হচ্ছে…";
+    if (map) { map.setView([p.lat, p.lng], p.kind === "outside" ? 14 : 18); markers[p.id].addTo(map); }
+    startWatch();
+    updateNav();
+  }, 60);
+}
+$("#navStop").addEventListener("click", () => {
+  if (nav && nav.line) nav.line.remove();
+  nav = null; $("#navPanel").classList.remove("show");
+});
+function updateNav(){
+  if (!nav || me.lat === null) return;
+  const p = nav.p;
+  const d = dist(me.lat, me.lng, p.lat, p.lng);
+  const brg = bearing(me.lat, me.lng, p.lat, p.lng);
+  $("#navDist").textContent = d < 20 ? "পৌঁছে গেছেন" : fmtDist(d);
+  const rel = me.heading === null ? brg : brg - me.heading;
+  $("#navArrow").style.transform = `rotate(${rel}deg)`;
+  const hint = me.heading === null ? "তীর উত্তরকে ধরে দিক দেখাচ্ছে।" : "তীর যেদিকে, সেদিকে হাঁটুন।";
+  $("#navHint").textContent = me.acc > 60 ? "মসজিদের ভেতরে জিপিএস দুর্বল — গেট নম্বরের সাইন দেখে চলুন।" : hint;
+  const now = Date.now();
+  const moved = nav.lastRouteFrom ? dist(me.lat, me.lng, nav.lastRouteFrom[0], nav.lastRouteFrom[1]) : Infinity;
+  if (d > 40 && (moved > 40 || now - nav.lastRouteAt > 90000)) {
+    nav.lastRouteAt = now; nav.lastRouteFrom = [me.lat, me.lng];
+    drawRoute(me.lat, me.lng, p);
+  }
+}
+async function drawRoute(lat, lng, p){
+  if (!map) return;
+  const straight = () => {
+    if (nav.line) nav.line.remove();
+    nav.line = L.polyline([[lat, lng], [p.lat, p.lng]], { color:"#C9A24A", weight:5, dashArray:"8 10" }).addTo(map);
+  };
+  try {
+    const url = `https://routing.openstreetmap.de/routed-foot/route/v1/foot/${lng},${lat};${p.lng},${p.lat}?overview=full&geometries=geojson`;
+    const r = await fetch(url);
+    const j = await r.json();
+    if (!j.routes || !j.routes[0]) return straight();
+    const pts = j.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+    if (!nav || nav.p !== p) return;
+    if (nav.line) nav.line.remove();
+    nav.line = L.polyline(pts, { color:"#C9A24A", weight:6, opacity:.95 }).addTo(map);
+    const mins = Math.round(j.routes[0].duration / 60);
+    if (mins > 0) $("#navTo").textContent = `${p.name} · হেঁটে প্রায় ${bn(mins)} মিনিট`;
+  } catch(e) { straight(); }
+}
+document.addEventListener("click", e => {
+  const g = e.target.closest("[data-go]"); if (g) { startNav(g.dataset.go); return; }
+  const s = e.target.closest("[data-show]");
+  if (s) { show("map"); setTimeout(() => { initMap(); openSheet(s.dataset.show); }, 60); }
+});
+
+/* ============ views ============ */
+function show(v){
+  $$(".view").forEach(x => x.classList.toggle("active", x.id === "v-" + v));
+  $$(".tabs button").forEach(b => b.dataset.v === v ? b.setAttribute("aria-current","page") : b.removeAttribute("aria-current"));
+  if (location.hash !== "#" + v) history.replaceState(null, "", "#" + v);
+  document.body.classList.toggle("on-map", v === "map");
+  window.scrollTo(0, 0);
+  if (v === "map") { setBandH(); setTimeout(() => { initMap(); map && map.invalidateSize(); }, 30); }
+  if (v === "quran" && !$("#surahList").children.length) renderSurahList();
+}
+$$(".tabs button").forEach(b => b.addEventListener("click", () => show(b.dataset.v)));
+
+/* ============ Quran ============ */
+const Q_BASE = "https://cdn.jsdelivr.net/npm/quran-cloud@1.0.0/dist/chapters/bn/";
+const SURAHS = [
+["الفاتحة","আল-ফাতিহা",7],["البقرة","আল-বাকারা",286],["آل عمران","আলে ইমরান",200],["النساء","আন-নিসা",176],["المائدة","আল-মায়িদা",120],["الأنعام","আল-আনআম",165],["الأعراف","আল-আরাফ",206],["الأنفال","আল-আনফাল",75],["التوبة","আত-তাওবা",129],["يونس","ইউনুস",109],
+["هود","হুদ",123],["يوسف","ইউসুফ",111],["الرعد","আর-রাদ",43],["إبراهيم","ইবরাহিম",52],["الحجر","আল-হিজর",99],["النحل","আন-নাহল",128],["الإسراء","আল-ইসরা",111],["الكهف","আল-কাহফ",110],["مريم","মারইয়াম",98],["طه","ত্বা-হা",135],
+["الأنبياء","আল-আম্বিয়া",112],["الحج","আল-হজ",78],["المؤمنون","আল-মুমিনুন",118],["النور","আন-নুর",64],["الفرقان","আল-ফুরকান",77],["الشعراء","আশ-শুআরা",227],["النمل","আন-নামল",93],["القصص","আল-কাসাস",88],["العنكبوت","আল-আনকাবুত",69],["الروم","আর-রুম",60],
+["لقمان","লুকমান",34],["السجدة","আস-সাজদা",30],["الأحزاب","আল-আহযাব",73],["سبإ","সাবা",54],["فاطر","ফাতির",45],["يس","ইয়াসিন",83],["الصافات","আস-সাফফাত",182],["ص","সোয়াদ",88],["الزمر","আয-যুমার",75],["غافر","গাফির",85],
+["فصلت","ফুসসিলাত",54],["الشورى","আশ-শুরা",53],["الزخرف","আয-যুখরুফ",89],["الدخان","আদ-দুখান",59],["الجاثية","আল-জাসিয়া",37],["الأحقاف","আল-আহকাফ",35],["محمد","মুহাম্মাদ",38],["الفتح","আল-ফাতহ",29],["الحجرات","আল-হুজুরাত",18],["ق","ক্বাফ",45],
+["الذاريات","আয-যারিয়াত",60],["الطور","আত-তুর",49],["النجم","আন-নাজম",62],["القمر","আল-কামার",55],["الرحمن","আর-রহমান",78],["الواقعة","আল-ওয়াকিয়া",96],["الحديد","আল-হাদিদ",29],["المجادلة","আল-মুজাদালা",22],["الحشر","আল-হাশর",24],["الممتحنة","আল-মুমতাহিনা",13],
+["الصف","আস-সাফ",14],["الجمعة","আল-জুমুআ",11],["المنافقون","আল-মুনাফিকুন",11],["التغابن","আত-তাগাবুন",18],["الطلاق","আত-তালাক",12],["التحريم","আত-তাহরিম",12],["الملك","আল-মুলক",30],["القلم","আল-কলম",52],["الحاقة","আল-হাক্কা",52],["المعارج","আল-মাআরিজ",44],
+["نوح","নুহ",28],["الجن","আল-জিন",28],["المزمل","আল-মুযযাম্মিল",20],["المدثر","আল-মুদ্দাসসির",56],["القيامة","আল-কিয়ামা",40],["الإنسان","আল-ইনসান",31],["المرسلات","আল-মুরসালাত",50],["النبإ","আন-নাবা",40],["النازعات","আন-নাযিআত",46],["عبس","আবাসা",42],
+["التكوير","আত-তাকবির",29],["الانفطار","আল-ইনফিতার",19],["المطففين","আল-মুতাফফিফিন",36],["الانشقاق","আল-ইনশিকাক",25],["البروج","আল-বুরুজ",22],["الطارق","আত-তারিক",17],["الأعلى","আল-আলা",19],["الغاشية","আল-গাশিয়া",26],["الفجر","আল-ফাজর",30],["البلد","আল-বালাদ",20],
+["الشمس","আশ-শামস",15],["الليل","আল-লাইল",21],["الضحى","আদ-দুহা",11],["الشرح","আশ-শারহ",8],["التين","আত-তিন",8],["العلق","আল-আলাক",19],["القدر","আল-কদর",5],["البينة","আল-বায়্যিনা",8],["الزلزلة","আয-যিলযাল",8],["العاديات","আল-আদিয়াত",11],
+["القارعة","আল-কারিআ",11],["التكاثر","আত-তাকাসুর",8],["العصر","আল-আসর",3],["الهمزة","আল-হুমাযা",9],["الفيل","আল-ফিল",5],["قريش","কুরাইশ",4],["الماعون","আল-মাউন",7],["الكوثر","আল-কাওসার",3],["الكافرون","আল-কাফিরুন",6],["النصر","আন-নাসর",3],
+["المسد","আল-মাসাদ",5],["الإخلاص","আল-ইখলাস",4],["الفلق","আল-ফালাক",5],["الناس","আন-নাস",6]
+];
+function renderSurahList(q=""){
+  const ql = q.trim().toLowerCase();
+  const digits = ql.replace(/[০-৯]/g, d => BN.indexOf(d));
+  const html = SURAHS.map(([ar, name, n], i) => {
+    const num = i + 1;
+    if (ql && !(name.includes(q.trim()) || ar.includes(q.trim()) || String(num) === digits)) return "";
+    return `<li><button data-s="${num}"><span class="snum"><span>${bn(num)}</span></span>
+      <span><span class="sname">${name}</span><br><span class="smeta">${bn(n)} আয়াত</span></span>
+      <span class="sar">${ar}</span></button></li>`;
+  }).join("");
+  $("#surahList").innerHTML = html || '<li class="loading">কোনো সূরা মেলেনি।</li>';
+  const lr = store.get("lastRead", null);
+  $("#lastRead").innerHTML = lr ? `<button class="btn" data-s="${lr.s}" data-a="${lr.a}">আবার পড়া শুরু: ${SURAHS[lr.s-1][1]}, আয়াত ${bn(lr.a)}</button>` : "";
+}
+$("#qSearch").addEventListener("input", e => renderSurahList(e.target.value));
+$("#v-quran").addEventListener("click", e => {
+  const b = e.target.closest("[data-s]"); if (b) openSurah(+b.dataset.s, +(b.dataset.a || 0));
+});
+let curSurah = null, arSize = store.get("arSize", 30);
+document.documentElement.style.setProperty("--ar-size", arSize + "px");
+$("#arPlus").addEventListener("click", () => setAr(arSize + 2));
+$("#arMinus").addEventListener("click", () => setAr(arSize - 2));
+function setAr(v){ arSize = Math.max(20, Math.min(52, v)); store.set("arSize", arSize); document.documentElement.style.setProperty("--ar-size", arSize + "px"); }
+$("#qBack").addEventListener("click", () => { $("#qReader").hidden = true; $("#qList").hidden = false; renderSurahList($("#qSearch").value); });
+$("#wbwToggle").checked = store.get("wbw", false);
+$("#wbwToggle").addEventListener("change", e => { store.set("wbw", e.target.checked); if (curSurah) openSurah(curSurah.id, 0, true); });
+
+async function openSurah(n, ayah=0, keepScroll=false){
+  $("#qList").hidden = true; $("#qReader").hidden = false;
+  const body = $("#qBody");
+  body.innerHTML = '<p class="loading">সূরা লোড হচ্ছে…</p>';
+  if (!keepScroll) window.scrollTo(0, 0);
+  let data;
+  try { data = await (await fetch(Q_BASE + n + ".json")).json(); }
+  catch(e){ body.innerHTML = '<p class="loading">সূরাটি লোড হয়নি। ইন্টারনেট চালু করে আবার চেষ্টা করুন। একবার খোলা হলে পরে অফলাইনেও পড়া যাবে।</p>'; return; }
+  curSurah = data;
+  const [ar, name] = SURAHS[n-1];
+  let html = `<div class="surah-head"><div class="sar">سورة ${ar}</div><h2 style="margin:4px 0">${name}</h2>
+    <p class="smeta">${data.type === "meccan" ? "মাক্কী" : "মাদানী"} সূরা · ${bn(data.total_verses)} আয়াত</p></div>`;
+  if (n !== 1 && n !== 9) html += `<div class="bism">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>`;
+  for (const v of data.verses) {
+    html += `<article class="ayah" id="a${v.id}" data-ayah="${v.id}">
+      <div class="ar">${esc(v.text)} <span class="ayah-no">${bn(v.id)}</span></div>
+      <div class="wbw" data-wbw="${v.id}" hidden></div>
+      <p class="bn">${esc(v.translation)}</p></article>`;
+  }
+  html += `<p class="src">আরবি পাঠ ও বাংলা অনুবাদ: quran-cloud (CC BY-SA 4.0)। শব্দার্থ: Quran.com।</p>`;
+  body.innerHTML = html;
+  store.set("lastRead", { s:n, a: ayah || 1 });
+  if (ayah) { const el = document.getElementById("a" + ayah); el && el.scrollIntoView({ block:"start" }); }
+  observeAyahs(n);
+  if ($("#wbwToggle").checked) loadWbw(n);
+}
+let ayahObserver;
+function observeAyahs(n){
+  if (ayahObserver) ayahObserver.disconnect();
+  if (!("IntersectionObserver" in window)) return;
+  ayahObserver = new IntersectionObserver(es => {
+    for (const e of es) if (e.isIntersecting) store.set("lastRead", { s:n, a:+e.target.dataset.ayah });
+  }, { rootMargin:"-40% 0px -55% 0px" });
+  $$(".ayah").forEach(a => ayahObserver.observe(a));
+}
+async function loadWbw(n){
+  const note = document.createElement("p");
+  note.className = "loading"; note.textContent = "শব্দে শব্দে অর্থ লোড হচ্ছে…";
+  $("#qBody").prepend(note);
+  try {
+    let page = 1, total = 1, sawBangla = false;
+    do {
+      const url = `https://api.quran.com/api/v4/verses/by_chapter/${n}?language=bn&words=true&word_fields=text_uthmani&word_translation_language=bn&per_page=50&page=${page}`;
+      const j = await (await fetch(url)).json();
+      total = (j.pagination && j.pagination.total_pages) || 1;
+      for (const v of j.verses || []) {
+        const box = document.querySelector(`[data-wbw="${v.verse_number}"]`);
+        if (!box) continue;
+        box.innerHTML = (v.words || []).filter(w => w.char_type_name === "word").map(w => {
+          const t = (w.translation && w.translation.text) || "";
+          if (/[ঀ-৿]/.test(t)) sawBangla = true;
+          return `<div class="w"><div class="wa">${esc(w.text_uthmani || w.text || "")}</div><div class="wb">${esc(t)}</div></div>`;
+        }).join("");
+        box.hidden = false;
+      }
+      page++;
+    } while (page <= total && curSurah && curSurah.id === n);
+    note.remove();
+    if (!sawBangla) { const w = document.createElement("p"); w.className = "note"; w.textContent = "এই সূরার বাংলা শব্দার্থ সার্ভারে পাওয়া যায়নি, তাই ইংরেজি শব্দার্থ দেখানো হচ্ছে।"; $("#qBody").prepend(w); }
+  } catch(e) {
+    note.textContent = "শব্দে শব্দে অর্থ লোড হয়নি — ইন্টারনেট সংযোগ দেখুন। আয়াতের পূর্ণ বাংলা অর্থ নিচে আছে।";
+  }
+}
+$("#dlAll").addEventListener("click", async () => {
+  const st = $("#dlStatus"); let ok = 0;
+  for (let i = 1; i <= 114; i++) {
+    try { await fetch(Q_BASE + i + ".json"); ok++; } catch(e){}
+    st.textContent = `${bn(i)}/১১৪`;
+  }
+  st.textContent = ok === 114 ? "সব সূরা রাখা হয়েছে" : `${bn(ok)}টি রাখা হয়েছে, বাকিগুলোর জন্য ইন্টারনেট দরকার`;
+});
+
+/* ============ Seerah ============ */
+const SEERAH = [
+  { age:"জন্ম", yr:"৫৭০/৫৭১ খ্রি.", t:"জন্ম — হস্তীর বছর", place:"mawlid",
+    b:"মক্কার বনু হাশিম গোত্রে, রবিউল আউয়াল মাসের এক সোমবার নবীজি ﷺ জন্মগ্রহণ করেন। সেই বছর আবরাহা হাতির বাহিনী নিয়ে কাবা ধ্বংস করতে এসে ধ্বংস হয়েছিল (সূরা ফিল)। জন্মের আগেই পিতা আব্দুল্লাহ ইন্তেকাল করেন। দাদা আব্দুল মুত্তালিব নাম রাখেন ‘মুহাম্মাদ’। নবীজি ﷺ নিজে বলেছেন, সোমবার “আমি জন্মেছি” (মুসলিম)।" },
+  { age:"শৈশব", yr:"০–৮ বছর", t:"হালিমা সাদিয়ার কোলে, মা ও দাদার বিদায়",
+    b:"আরবের রীতি অনুযায়ী শিশুকাল কাটে বনু সাদ গোত্রে দুধমা হালিমা (রা.)-র কাছে। সেখানেই ফেরেশতারা তাঁর বক্ষ বিদারণ করে অন্তর পবিত্র করেন (মুসলিম)। ছয় বছর বয়সে মা আমিনা আবওয়া নামক স্থানে ইন্তেকাল করেন। আট বছর বয়সে দাদা আব্দুল মুত্তালিবও মারা যান। এরপর চাচা আবু তালিব তাঁর দায়িত্ব নেন।" },
+  { age:"যৌবন", yr:"১২–২৫ বছর", t:"আল-আমিন — বিশ্বস্ত যুবক",
+    b:"চাচার সঙ্গে সিরিয়ায় বাণিজ্যযাত্রা, মক্কার পাহাড়ে ছাগল চরানো — এভাবেই তাঁর যৌবন কাটে। সততার জন্য সবাই তাঁকে ‘আল-আমিন’ (বিশ্বস্ত) ও ‘আস-সাদিক’ (সত্যবাদী) বলত। অন্যায়ের বিরুদ্ধে গঠিত ‘হিলফুল ফুযুল’ শান্তিচুক্তিতে তিনি অংশ নেন।" },
+  { age:"২৫", yr:"প্রায় ৫৯৫ খ্রি.", t:"খাদিজা (রা.)-র সঙ্গে বিবাহ", place:"khadija",
+    b:"খাদিজা (রা.)-র বাণিজ্য সিরিয়ায় নিয়ে গিয়ে সততা ও দক্ষতার পরিচয় দেন। এরপর খাদিজা (রা.) নিজেই বিয়ের প্রস্তাব দেন। ইবরাহিম ছাড়া নবীজির ﷺ সব সন্তান তাঁরই গর্ভে। খাদিজা (রা.)-র জীবদ্দশায় তিনি আর কোনো বিয়ে করেননি।" },
+  { age:"৩৫", yr:"প্রায় ৬০৫ খ্রি.", t:"কাবা পুনর্নির্মাণ ও হাজরে আসওয়াদ", place:"hateem",
+    b:"বন্যায় কাবা ক্ষতিগ্রস্ত হলে কুরাইশরা তা নতুন করে বানায়। হালাল টাকা কম পড়ায় এক অংশ বাইরে রাখা হয় — সেটাই আজকের হাতিম। হাজরে আসওয়াদ কে বসাবে, তা নিয়ে গোত্রগুলোর মধ্যে যুদ্ধ বাধার উপক্রম হয়। নবীজি ﷺ একটি চাদরে পাথর রেখে সব গোত্রপ্রধানকে চাদরের কোণ ধরতে বলেন, তারপর নিজ হাতে পাথরটি বসিয়ে দেন।" },
+  { age:"৪০", yr:"৬১০ খ্রি., রমজান", t:"হেরা গুহায় প্রথম ওহী", place:"hira",
+    b:"নির্জনে ইবাদতের জন্য তিনি হেরা গুহায় যেতেন। সেখানেই জিবরাইল (আ.) এসে বলেন, ‘পড়ুন’। নাজিল হয় সূরা আলাকের প্রথম পাঁচ আয়াত। কাঁপতে কাঁপতে ঘরে ফিরলে খাদিজা (রা.) বলেন, আল্লাহ আপনাকে কখনো অপমানিত করবেন না — আপনি আত্মীয়ের হক আদায় করেন, অসহায়ের বোঝা বহন করেন (বুখারি)।",
+    ar:"اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ" },
+  { age:"৪০–৪৩", yr:"নবুয়তের ১–৩ বছর", t:"গোপন দাওয়াত ও দারুল আরকাম", place:"arqam",
+    b:"প্রথমে খাদিজা, আবু বকর, আলী ও যায়েদ (রা.) ইসলাম গ্রহণ করেন। সাফার কাছে আরকাম (রা.)-র বাড়িতে গোপনে শিক্ষা চলত।" },
+  { age:"৪৩", yr:"নবুয়তের ৪র্থ বছর", t:"সাফা পাহাড়ে প্রকাশ্য দাওয়াত", place:"safa",
+    b:"আল্লাহর নির্দেশে নবীজি ﷺ সাফা পাহাড়ে উঠে কুরাইশদের ডাকেন। জিজ্ঞাসা করেন, যদি বলি পাহাড়ের ওপারে শত্রুবাহিনী, বিশ্বাস করবে? সবাই বলে, আপনাকে কখনো মিথ্যা বলতে দেখিনি। তখন তিনি এক আল্লাহর দিকে ডাক দেন। আবু লাহাব এর বিরোধিতা করে — নাজিল হয় সূরা লাহাব (বুখারি)।" },
+  { age:"৪৩–৪৯", yr:"", t:"নির্যাতন, ধৈর্য ও আবিসিনিয়ায় হিজরত", place:"abujahl",
+    b:"আবু জাহলসহ কুরাইশ নেতারা মুসলমানদের ওপর ভয়ংকর নির্যাতন চালায়। বিলাল (রা.)-কে উত্তপ্ত বালুতে পাথর চাপা দেওয়া হয়; সুমাইয়া (রা.) ইসলামের প্রথম শহীদ হন। নবুয়তের পঞ্চম বছরে একদল সাহাবি আবিসিনিয়ার ন্যায়পরায়ণ বাদশাহ নাজাশির কাছে আশ্রয় নেন। এ সময় হামজা ও উমর (রা.)-এর ইসলাম গ্রহণ মুসলমানদের শক্তি বাড়ায়।" },
+  { age:"৪৬–৪৯", yr:"নবুয়তের ৭–১০ বছর", t:"শিআবে আবি তালিবে তিন বছরের বয়কট", place:"mawlid",
+    b:"কুরাইশরা বনু হাশিমের সঙ্গে কেনাবেচা, বিয়েশাদি সব বন্ধ করে দেয়। নবীজি ﷺ পরিবারসহ আবু তালিবের উপত্যকায় তিন বছর অবরুদ্ধ থাকেন। ক্ষুধায় গাছের পাতা খেয়ে দিন কাটাতে হয়েছে।" },
+  { age:"৫০", yr:"নবুয়তের ১০ম বছর", t:"দুঃখের বছর ও তায়েফ", place:"muala",
+    b:"অল্প ব্যবধানে প্রিয় স্ত্রী খাদিজা (রা.) ও রক্ষক চাচা আবু তালিব ইন্তেকাল করেন — তাঁরা জান্নাতুল মুআল্লায় শায়িত। তায়েফে দাওয়াত দিতে গেলে সেখানকার লোকেরা পাথর মেরে রক্তাক্ত করে। পাহাড়ের ফেরেশতা তাদের ধ্বংসের অনুমতি চাইলে তিনি বলেন, আশা করি তাদের বংশধরদের মধ্যে আল্লাহর ইবাদতকারী জন্মাবে (বুখারি, মুসলিম)।" },
+  { age:"৫১", yr:"", t:"ইসরা ও মিরাজ",
+    b:"এক রাতে মসজিদুল হারাম থেকে মসজিদুল আকসা, সেখান থেকে আসমানে সফর (সূরা ইসরা ১৭:১)। এই সফরে পাঁচ ওয়াক্ত নামাজ ফরজ হয়। আবু বকর (রা.) কোনো দ্বিধা ছাড়া বিশ্বাস করায় ‘সিদ্দিক’ উপাধি পান।",
+    ar:"سُبْحَانَ الَّذِي أَسْرَىٰ بِعَبْدِهِ لَيْلًا مِّنَ الْمَسْجِدِ الْحَرَامِ إِلَى الْمَسْجِدِ الْأَقْصَى" },
+  { age:"৫১–৫২", yr:"৬২১–৬২২ খ্রি.", t:"আকাবার বাইআত", place:"bayah",
+    b:"হজের মৌসুমে মিনার আকাবায় মদিনার (ইয়াসরিব) লোকেরা গোপনে ইসলাম গ্রহণ করে নবীজির ﷺ হাতে বাইআত দেয় — প্রথমবার ১২ জন, পরের বছর ৭০ জনেরও বেশি। এতে মদিনায় হিজরতের পথ খুলে যায়।" },
+  { age:"৫৩", yr:"৬২২ খ্রি. — হিজরি সনের শুরু", t:"হিজরত: সাওর গুহা থেকে মদিনা", place:"thawr",
+    b:"কুরাইশরা তাঁকে হত্যার ষড়যন্ত্র করে। সেই রাতে আলী (রা.)-কে নিজের বিছানায় রেখে তিনি আবু বকর (রা.)-কে নিয়ে বের হন এবং সাওর গুহায় তিন রাত থাকেন। শত্রুরা গুহার মুখে পৌঁছালে বলেন, ‘চিন্তা কোরো না, আল্লাহ আমাদের সঙ্গে আছেন’ (৯:৪০)। কুবায় প্রথম মসজিদ নির্মাণের পর মদিনায় পৌঁছান, মসজিদে নববী গড়েন এবং মুহাজির ও আনসারদের মধ্যে ভ্রাতৃত্ব স্থাপন করেন।",
+    ar:"لَا تَحْزَنْ إِنَّ اللَّهَ مَعَنَا" },
+  { age:"৫৪–৫৫", yr:"২ হিজরি", t:"কিবলা পরিবর্তন, রোজা ফরজ, বদর যুদ্ধ",
+    b:"বাইতুল মুকাদ্দাস থেকে কিবলা কাবার দিকে ফিরিয়ে দেওয়া হয় (২:১৪৪)। রমজানের রোজা ফরজ হয়। ১৭ রমজান বদরে ৩১৩ জন সাহাবি প্রায় এক হাজার সুসজ্জিত সৈন্যের বিরুদ্ধে বিজয়ী হন। আবু জাহল এই যুদ্ধে নিহত হয়।" },
+  { age:"৫৫–৫৮", yr:"৩–৫ হিজরি", t:"উহুদ ও খন্দক",
+    b:"উহুদে তীরন্দাজদের একাংশ নির্দেশ অমান্য করায় মুসলমানরা ক্ষতিগ্রস্ত হন; নবীজি ﷺ আহত হন, চাচা হামজা (রা.) শহীদ হন। খন্দকের যুদ্ধে সালমান ফারসি (রা.)-র পরামর্শে মদিনার চারপাশে পরিখা খোঁড়া হয়; সম্মিলিত শত্রুবাহিনী ব্যর্থ হয়ে ফিরে যায়।" },
+  { age:"৫৯", yr:"৬ হিজরি", t:"হুদায়বিয়ার সন্ধি",
+    b:"উমরাহর উদ্দেশ্যে গেলে কুরাইশরা মক্কায় ঢুকতে বাধা দেয়। আপাতদৃষ্টিতে কঠিন শর্তে সন্ধি হয়, কিন্তু আল্লাহ একে ‘সুস্পষ্ট বিজয়’ বলেছেন (সূরা ফাতহ)। শান্তির এই সময়ে দলে দলে মানুষ ইসলাম গ্রহণ করে; নবীজি ﷺ বিভিন্ন রাজা-বাদশাহর কাছে দাওয়াতি চিঠি পাঠান।" },
+  { age:"৬০–৬১", yr:"৮ হিজরি", t:"মক্কা বিজয় ও সাধারণ ক্ষমা", place:"kaaba",
+    b:"প্রায় দশ হাজার সাহাবি নিয়ে প্রায় রক্তপাতহীনভাবে মক্কা বিজয় হয়। যারা বছরের পর বছর নির্যাতন করেছিল, তাদের উদ্দেশে বলেন, ‘আজ তোমাদের প্রতি কোনো অভিযোগ নেই।’ কাবা থেকে ৩৬০টি মূর্তি সরিয়ে বলেন, ‘সত্য এসেছে, মিথ্যা দূর হয়েছে’ (১৭:৮১)। বিলাল (রা.) কাবার ছাদে উঠে আজান দেন।",
+    ar:"جَاءَ الْحَقُّ وَزَهَقَ الْبَاطِلُ" },
+  { age:"৬২", yr:"৯ হিজরি", t:"তাবুক ও প্রতিনিধিদলের বছর",
+    b:"প্রচণ্ড গরমে তাবুক অভিযান — সাহাবিদের ত্যাগের বড় পরীক্ষা। এরপর আরবের নানা গোত্র থেকে দলে দলে প্রতিনিধি এসে ইসলাম গ্রহণ করে।" },
+  { age:"৬৩", yr:"১০ হিজরি", t:"বিদায় হজ ও আরাফার ভাষণ", place:"arafat",
+    b:"জীবনের একমাত্র হজে লাখো সাহাবির সামনে আরাফায় ভাষণ দেন: মানুষের জান, মাল ও সম্মান পবিত্র; নারীদের প্রতি সদাচরণ করো; আরবের ওপর অনারবের, অনারবের ওপর আরবের শ্রেষ্ঠত্ব নেই — শ্রেষ্ঠত্ব তাকওয়ায়। সেখানে নাজিল হয়: ‘আজ আমি তোমাদের দ্বীনকে পূর্ণ করে দিলাম’ (৫:৩)।",
+    ar:"الْيَوْمَ أَكْمَلْتُ لَكُمْ دِينَكُمْ" },
+  { age:"৬৩", yr:"১১ হিজরি, রবিউল আউয়াল", t:"বিদায়",
+    b:"অসুস্থ অবস্থায় শেষ দিনগুলো আয়েশা (রা.)-র ঘরে কাটান। শেষ উপদেশ ছিল নামাজ ও অধীনস্থদের প্রতি যত্ন। এক সোমবার ৬৩ বছর বয়সে ইন্তেকাল করেন। আবু বকর (রা.) বলেন, যে মুহাম্মাদের ইবাদত করত, সে জেনে রাখুক তিনি ইন্তেকাল করেছেন; আর যে আল্লাহর ইবাদত করে, আল্লাহ চিরঞ্জীব (বুখারি)। মদিনায় আয়েশা (রা.)-র ঘরেই তাঁকে দাফন করা হয়।" },
+];
+$("#timeline").innerHTML = SEERAH.map((e, i) => `
+  <li class="ev"><div class="ev-age"><b>${e.age}</b>${e.yr ? e.yr : ""}</div>
+  <details${i === 0 ? " open" : ""}><summary>${e.t}</summary>
+    <div class="body">${e.ar ? `<div class="ar">${e.ar}</div>` : ""}<p>${e.b}</p>
+    ${e.place ? `<button class="link-btn" data-show="${e.place}">ম্যাপে জায়গাটি দেখুন</button>` : ""}</div>
+  </details></li>`).join("");
+
+/* ============ Sunnah ============ */
+const SUNNAH = [
+  ["হারামে বিশেষ সুন্নত", [
+    ["রুকনে ইয়ামানি ও হাজরে আসওয়াদের মাঝে দোয়া", "তাওয়াফের সময় এই দুই কোণের মাঝে পড়তেন: “রাব্বানা আতিনা ফিদ্দুনিয়া হাসানাহ…” (দোয়া ট্যাবে শব্দার্থসহ আছে)।", "আবু দাউদ"],
+    ["তাওয়াফের পর মাকামে ইবরাহিমের পেছনে দুই রাকাত", "“তোমরা মাকামে ইবরাহিমকে নামাজের স্থান বানাও।” ভিড় হলে মসজিদের যেকোনো জায়গায় পড়লেও চলে।", "সূরা বাকারা ২:১২৫, মুসলিম"],
+    ["যমযম পান করে নিয়তসহ দোয়া", "“যমযমের পানি যে উদ্দেশ্যে পান করা হয়, তা পূরণ হয়।” কিবলামুখী হয়ে বিসমিল্লাহ বলে পান করুন।", "ইবনে মাজাহ"],
+    ["মসজিদে ঢুকে দুই রাকাত (তাহিয়্যাতুল মসজিদ)", "মসজিদে প্রবেশ করে বসার আগে দুই রাকাত নামাজ।", "বুখারি, মুসলিম"],
+    ["মসজিদে প্রবেশ ও বের হওয়ার দোয়া", "ঢোকার সময়: আল্লাহুম্মাফতাহ লি আবওয়াবা রাহমাতিক। বের হওয়ার সময়: আল্লাহুম্মা ইন্নি আসআলুকা মিন ফাদলিক।", "মুসলিম"],
+  ]],
+  ["খাওয়া ও পান করা", [
+    ["বিসমিল্লাহ বলে, ডান হাতে, নিজের সামনে থেকে খাওয়া", "নবীজি ﷺ এক বালককে বললেন: বিসমিল্লাহ বলো, ডান হাতে খাও এবং তোমার সামনে থেকে খাও।", "বুখারি, মুসলিম"],
+    ["বসে পান করা, তিন নিঃশ্বাসে", "নবীজি ﷺ সাধারণত বসে পান করতেন এবং পান করার সময় পাত্রের বাইরে তিনবার শ্বাস নিতেন।", "মুসলিম"],
+    ["খাবারের দোষ না ধরা", "পছন্দ হলে খেতেন, না হলে রেখে দিতেন — কখনো খাবারের দোষ ধরতেন না।", "বুখারি, মুসলিম"],
+  ]],
+  ["ঘুম ও সকাল", [
+    ["ওযু করে ডান কাতে শোয়া", "ঘুমানোর আগে নামাজের মতো ওযু করো, তারপর ডান কাতে শোও।", "বুখারি, মুসলিম"],
+    ["ঘুমের আগে আয়াতুল কুরসি", "রাতে আয়াতুল কুরসি পড়লে সকাল পর্যন্ত আল্লাহর পক্ষ থেকে একজন রক্ষক থাকে।", "বুখারি"],
+    ["ফজরের দুই রাকাত সুন্নত", "“ফজরের দুই রাকাত দুনিয়া ও এর মধ্যে যা আছে তার চেয়ে উত্তম।”", "মুসলিম"],
+    ["রাতের শেষ ভাগে তাহাজ্জুদ", "ফরজের পর সবচেয়ে উত্তম নামাজ রাতের নামাজ।", "মুসলিম"],
+  ]],
+  ["আচরণ ও সম্পর্ক", [
+    ["সালামের প্রসার", "“তোমরা পরস্পরের মধ্যে সালামের প্রসার করো।” চেনা-অচেনা সবাইকে সালাম দেওয়া।", "মুসলিম"],
+    ["হাসিমুখে দেখা করা", "“তোমার ভাইয়ের সামনে হাসিমুখ হওয়াও সদকা।”", "তিরমিজি"],
+    ["পরিবারের কাজে সাহায্য", "আয়েশা (রা.) বলেন, তিনি ঘরে পরিবারের কাজে সাহায্য করতেন; নামাজের সময় হলে নামাজে যেতেন।", "বুখারি"],
+    ["মানুষের প্রতি দয়া", "“যে মানুষের প্রতি দয়া করে না, আল্লাহ তার প্রতি দয়া করেন না।”", "বুখারি, মুসলিম"],
+    ["হাঁচির জবাব", "হাঁচি দিলে ‘আলহামদুলিল্লাহ’, শুনলে ‘ইয়ারহামুকাল্লাহ’, তার জবাবে ‘ইয়াহদিকুমুল্লাহু ওয়া ইউসলিহু বালাকুম’।", "বুখারি"],
+  ]],
+  ["পরিচ্ছন্নতা ও ইবাদত", [
+    ["মিসওয়াক", "“উম্মতের কষ্ট হবে মনে না করলে প্রতি নামাজের সময় মিসওয়াকের আদেশ দিতাম।”", "বুখারি, মুসলিম"],
+    ["ডান দিক থেকে শুরু করা", "জুতা পরা, চুল আঁচড়ানো, ওযু — সব ভালো কাজ ডান দিক থেকে শুরু করা পছন্দ করতেন।", "বুখারি, মুসলিম"],
+    ["আজানের জবাব", "মুয়াজ্জিন যা বলেন, তা-ই বলা; ‘হাইয়্যা আলাস সালাহ/ফালাহ’ শুনলে ‘লা হাওলা ওয়ালা কুওয়াতা ইল্লা বিল্লাহ’।", "বুখারি, মুসলিম"],
+    ["সোম ও বৃহস্পতিবার রোজা", "এই দুই দিন আমল আল্লাহর কাছে পেশ করা হয়; নবীজি ﷺ রোজা অবস্থায় আমল পেশ হওয়া পছন্দ করতেন।", "তিরমিজি"],
+  ]],
+];
+$("#sunnahList").innerHTML = SUNNAH.map(([g, items]) =>
+  `<h3 class="group-title">${g}</h3>` + items.map(([t, b, r]) =>
+    `<div class="sunnah"><h3>${t}</h3><p>${b}</p><div class="ref">${r}</div></div>`).join("")).join("");
+
+/* ============ Duas (Quranic) — word by word ============ */
+const DUAS = [
+  { t:"দুনিয়া ও আখিরাতের কল্যাণ", ref:"সূরা বাকারা ২:২০১", note:"তাওয়াফে রুকনে ইয়ামানি ও হাজরে আসওয়াদের মাঝে নবীজি ﷺ এটি পড়তেন।",
+    pron:"রাব্বানা আতিনা ফিদ্দুনিয়া হাসানাতাঁও ওয়া ফিল আখিরাতি হাসানাতাঁও ওয়া কিনা আযাবান নার।",
+    mean:"হে আমাদের রব, আমাদের দুনিয়াতে কল্যাণ দিন, আখিরাতেও কল্যাণ দিন এবং আগুনের শাস্তি থেকে রক্ষা করুন।",
+    w:[["رَبَّنَا","হে আমাদের রব"],["آتِنَا","আমাদের দিন"],["فِي الدُّنْيَا","দুনিয়াতে"],["حَسَنَةً","কল্যাণ"],["وَفِي الْآخِرَةِ","এবং আখিরাতে"],["حَسَنَةً","কল্যাণ"],["وَقِنَا","আর আমাদের বাঁচান"],["عَذَابَ","শাস্তি থেকে"],["النَّارِ","আগুনের"]] },
+  { t:"আমল কবুলের দোয়া", ref:"সূরা বাকারা ২:১২৭", note:"ইবরাহিম ও ইসমাইল (আ.) কাবার ভিত তুলতে তুলতে এই দোয়া করেছিলেন — হাতিমে পড়ার জন্য বিশেষ উপযোগী।",
+    pron:"রাব্বানা তাকাব্বাল মিন্না, ইন্নাকা আনতাস সামিউল আলিম।",
+    mean:"হে আমাদের রব, আমাদের পক্ষ থেকে কবুল করুন; নিশ্চয়ই আপনি সব শোনেন, সব জানেন।",
+    w:[["رَبَّنَا","হে আমাদের রব"],["تَقَبَّلْ","কবুল করুন"],["مِنَّا","আমাদের থেকে"],["إِنَّكَ","নিশ্চয়ই আপনি"],["أَنتَ","আপনিই"],["السَّمِيعُ","সর্বশ্রোতা"],["الْعَلِيمُ","সর্বজ্ঞ"]] },
+  { t:"ক্ষমা চাওয়ার দোয়া", ref:"সূরা আরাফ ৭:২৩", note:"আদম ও হাওয়া (আ.)-এর দোয়া।",
+    pron:"রাব্বানা জালামনা আনফুসানা ওয়া ইল্লাম তাগফির লানা ওয়া তারহামনা লানাকুনান্না মিনাল খাসিরিন।",
+    mean:"হে আমাদের রব, আমরা নিজেদের ওপর জুলুম করেছি। আপনি যদি আমাদের ক্ষমা না করেন ও দয়া না করেন, তবে অবশ্যই আমরা ক্ষতিগ্রস্ত হব।",
+    w:[["رَبَّنَا","হে আমাদের রব"],["ظَلَمْنَا","আমরা জুলুম করেছি"],["أَنفُسَنَا","নিজেদের ওপর"],["وَإِن لَّمْ","আর যদি না"],["تَغْفِرْ لَنَا","আমাদের ক্ষমা করেন"],["وَتَرْحَمْنَا","ও আমাদের দয়া করেন"],["لَنَكُونَنَّ","অবশ্যই আমরা হব"],["مِنَ الْخَاسِرِينَ","ক্ষতিগ্রস্তদের মধ্যে"]] },
+  { t:"ঈমানের ওপর অটল থাকার দোয়া", ref:"সূরা আলে ইমরান ৩:৮",
+    pron:"রাব্বানা লা তুযিগ কুলুবানা বা‘দা ইয হাদাইতানা ওয়া হাব লানা মিল্লাদুনকা রাহমাহ, ইন্নাকা আনতাল ওয়াহহাব।",
+    mean:"হে আমাদের রব, আমাদের হিদায়াত দেওয়ার পর আমাদের অন্তর বাঁকা করবেন না; আপনার পক্ষ থেকে আমাদের রহমত দিন। নিশ্চয়ই আপনি মহাদাতা।",
+    w:[["رَبَّنَا","হে আমাদের রব"],["لَا تُزِغْ","বাঁকা করবেন না"],["قُلُوبَنَا","আমাদের অন্তর"],["بَعْدَ إِذْ","পরে যখন"],["هَدَيْتَنَا","আমাদের হিদায়াত দিয়েছেন"],["وَهَبْ لَنَا","আর আমাদের দান করুন"],["مِن لَّدُنكَ","আপনার কাছ থেকে"],["رَحْمَةً","রহমত"],["إِنَّكَ أَنتَ","নিশ্চয়ই আপনিই"],["الْوَهَّابُ","মহাদাতা"]] },
+  { t:"নিজের ও সন্তানের নামাজের দোয়া", ref:"সূরা ইবরাহিম ১৪:৪০", note:"ইবরাহিম (আ.)-এর দোয়া, মক্কার জন্য।",
+    pron:"রাব্বিজ‘আলনি মুকিমাস সালাতি ওয়া মিন যুররিয়্যাতি, রাব্বানা ওয়া তাকাব্বাল দু‘আ।",
+    mean:"হে আমার রব, আমাকে ও আমার বংশধরদের নামাজ কায়েমকারী বানান। হে আমাদের রব, আমার দোয়া কবুল করুন।",
+    w:[["رَبِّ","হে আমার রব"],["اجْعَلْنِي","আমাকে বানান"],["مُقِيمَ","কায়েমকারী"],["الصَّلَاةِ","নামাজের"],["وَمِن ذُرِّيَّتِي","ও আমার বংশধরদের থেকেও"],["رَبَّنَا","হে আমাদের রব"],["وَتَقَبَّلْ","এবং কবুল করুন"],["دُعَاءِ","আমার দোয়া"]] },
+  { t:"মা-বাবার জন্য দোয়া", ref:"সূরা ইসরা ১৭:২৪",
+    pron:"রাব্বির হামহুমা কামা রাব্বায়ানি সাগিরা।",
+    mean:"হে আমার রব, তাঁদের দুজনের প্রতি দয়া করুন, যেমন তাঁরা ছোটবেলায় আমাকে লালন-পালন করেছেন।",
+    w:[["رَّبِّ","হে আমার রব"],["ارْحَمْهُمَا","তাঁদের দুজনকে দয়া করুন"],["كَمَا","যেমন"],["رَبَّيَانِي","তাঁরা আমাকে লালন করেছেন"],["صَغِيرًا","ছোট অবস্থায়"]] },
+  { t:"পরিবার ও সন্তানের জন্য দোয়া", ref:"সূরা ফুরকান ২৫:৭৪",
+    pron:"রাব্বানা হাব লানা মিন আযওয়াজিনা ওয়া যুররিয়্যাতিনা কুররাতা আ‘ইউনিঁও ওয়াজ‘আলনা লিলমুত্তাকিনা ইমামা।",
+    mean:"হে আমাদের রব, আমাদের স্ত্রী/স্বামী ও সন্তানদের আমাদের চোখের শীতলতা বানান এবং আমাদের মুত্তাকিদের নেতা বানান।",
+    w:[["رَبَّنَا","হে আমাদের রব"],["هَبْ لَنَا","আমাদের দান করুন"],["مِنْ أَزْوَاجِنَا","আমাদের জীবনসঙ্গীদের থেকে"],["وَذُرِّيَّاتِنَا","ও আমাদের সন্তানদের থেকে"],["قُرَّةَ","শীতলতা"],["أَعْيُنٍ","চোখের"],["وَاجْعَلْنَا","আর আমাদের বানান"],["لِلْمُتَّقِينَ","মুত্তাকিদের জন্য"],["إِمَامًا","নেতা"]] },
+  { t:"জ্ঞান বৃদ্ধির দোয়া", ref:"সূরা ত্বা-হা ২০:১১৪",
+    pron:"রাব্বি যিদনি ইলমা।",
+    mean:"হে আমার রব, আমার জ্ঞান বাড়িয়ে দিন।",
+    w:[["رَّبِّ","হে আমার রব"],["زِدْنِي","আমাকে বাড়িয়ে দিন"],["عِلْمًا","জ্ঞানে"]] },
+];
+$("#duaList").innerHTML = DUAS.map(d => `
+  <article class="dua"><h3>${d.t}</h3><div class="ref">${d.ref}</div>
+  ${d.note ? `<p class="lead">${d.note}</p>` : ""}
+  <div class="ar full">${d.w.map(x => x[0]).join(" ")}</div>
+  <div class="wbw">${d.w.map(([a, m]) => `<div class="w"><div class="wa">${a}</div><div class="wb">${m}</div></div>`).join("")}</div>
+  <p><b>উচ্চারণ:</b> <span class="pron">${d.pron}</span></p>
+  <p class="mean"><b>অর্থ:</b> ${d.mean}</p></article>`).join("");
+$("#tabDua").addEventListener("click", () => { $("#duaPane").hidden = false; $("#sunnahPane").hidden = true; $("#tabDua").setAttribute("aria-pressed", "true"); $("#tabSunnah").setAttribute("aria-pressed", "false"); });
+$("#tabSunnah").addEventListener("click", () => { $("#duaPane").hidden = true; $("#sunnahPane").hidden = false; $("#tabDua").setAttribute("aria-pressed", "false"); $("#tabSunnah").setAttribute("aria-pressed", "true"); });
+
+/* ============ start ============ */
+const startView = (location.hash || "#home").slice(1);
+show(["home","map","quran","seerah","sunnah"].includes(startView) ? startView : "home");
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
