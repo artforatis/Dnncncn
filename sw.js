@@ -3,8 +3,8 @@ const SHELL = "hg-shell-v2";
 const DATA = "hg-data-v2";
 const SHELL_FILES = [
   "./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "translit.js",
-  "content/hateem.js", "content/places.js", "content/seerah-1.js", "content/seerah-2.js", "content/seerah-3.js",
-  "content/duas.js", "content/sunnah.js",
+  "hateem.js", "places.js", "seerah-1.js", "seerah-2.js", "seerah-3.js",
+  "duas.js", "sunnah.js",
   "vendor/leaflet/leaflet.js", "vendor/leaflet/leaflet.css", "vendor/fonts/fonts.css", "data/osm.json"
 ];
 
