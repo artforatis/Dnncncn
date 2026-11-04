@@ -56,7 +56,7 @@ a{color:var(--green)}
 .status-row{display:flex;gap:8px;max-width:1100px;margin:8px auto 0;padding-bottom:10px}
 .chip{flex:1;border:1px solid #333;border-radius:12px;padding:6px 10px;min-width:0}
 .chip .who{font-size:13px;color:#bdbdbd}
-.chip .state{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip .state{font-weight:700;font-size:15px;line-height:1.3}
 .chip.open{border-color:var(--gold);background:#1a1508}
 .chip.open .state{color:var(--gold)}
 .chip.wait .state{color:#E9D9A8}
@@ -180,10 +180,10 @@ p{margin:.5em 0}
 .toc button{flex:0 0 auto;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:600}
 .era{font-size:20px;font-weight:800;color:var(--green);margin:28px 0 4px;padding-top:8px;border-top:3px solid var(--gold);scroll-margin-top:calc(var(--band-h,150px) + 10px)}
 .timeline{list-style:none;margin:6px 0 10px;padding:0;position:relative}
-.timeline::before{content:"";position:absolute;left:68px;top:0;bottom:0;width:2px;background:var(--gold)}
-.ev{display:grid;grid-template-columns:56px 1fr;gap:26px}
+.timeline::before{content:"";position:absolute;left:76px;top:0;bottom:0;width:2px;background:var(--gold)}
+.ev{display:grid;grid-template-columns:64px 1fr;gap:26px}
 .ev-age{font-size:13px;color:var(--muted);text-align:right;padding-top:14px;line-height:1.25}
-.ev-age b{display:block;font-size:16px;color:var(--ink)}
+.ev-age b{display:block;font-size:15px;color:var(--ink);overflow-wrap:anywhere}
 .ev details{position:relative;border-bottom:1px solid var(--line);padding:12px 0}
 .ev details::before{content:"";position:absolute;left:-22px;top:20px;width:12px;height:12px;border-radius:50%;background:var(--marble);border:3px solid var(--green)}
 .ev details[open]::before{background:var(--gold);border-color:var(--gold)}
@@ -391,13 +391,13 @@ p{margin:.5em 0}
 <script src="vendor/leaflet/leaflet.js"></script>
 <script>window.L || document.write('<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>');</script>
 <script src="translit.js"></script>
-<script src="content/hateem.js"></script>
-<script src="content/places.js"></script>
-<script src="content/seerah-1.js"></script>
-<script src="content/seerah-2.js"></script>
-<script src="content/seerah-3.js"></script>
-<script src="content/duas.js"></script>
-<script src="content/sunnah.js"></script>
+<script src="hateem.js"></script>
+<script src="places.js"></script>
+<script src="seerah-1.js"></script>
+<script src="seerah-2.js"></script>
+<script src="seerah-3.js"></script>
+<script src="duas.js"></script>
+<script src="sunnah.js"></script>
 <script>
 "use strict";
 /* ============ helpers ============ */
@@ -462,7 +462,7 @@ function tick(){
     el.classList.toggle("open", left >= 0);
     el.classList.toggle("wait", left < 0 && waitLeft >= 0);
     $(".state", el).textContent = left >= 0 ? `এখন খোলা, আর ${fmtDur(left)}`
-      : waitLeft >= 0 ? (key === "women" ? "এখন গেট ৭৪-এ অপেক্ষার সময়" : "এখন লাইনে দাঁড়ানোর সময়")
+      : waitLeft >= 0 ? (key === "women" ? "গেট ৭৪-এ অপেক্ষার সময়" : "লাইনে দাঁড়ানোর সময়")
       : `খুলবে ${fmtDur(untilWin(g.open, mins))} পর`;
   }
   const nl = $("#nowLine"); if (nl) nl.style.left = (mins / 1440 * 100) + "%";
